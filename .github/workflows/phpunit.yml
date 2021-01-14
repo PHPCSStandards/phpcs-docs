@@ -5,10 +5,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Install composer dependencies
-        run: composer install
       - uses: shivammathur/setup-php@v2
         with:
           php-version: 7.4.3
+      - name: Install composer dependencies
+        run: composer install
       - name: Run PHPUnit
         run: vendor/bin/phpunit
