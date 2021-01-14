@@ -1,0 +1,14 @@
+name: PHPUnit
+on: push
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install composer dependencies
+        run: composer install
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit
