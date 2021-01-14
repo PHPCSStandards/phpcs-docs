@@ -9,6 +9,6 @@ jobs:
         run: composer install
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.4
+          php-version: 7.4.3
       - name: Run PHPUnit
         run: vendor/bin/phpunit
