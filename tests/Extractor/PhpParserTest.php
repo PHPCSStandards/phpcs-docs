@@ -32,10 +32,10 @@ class PhpParserTest extends TestCase
         ';
 
         file_put_contents(self::PHP_FILE_PATH, $content);
-        $manualPage = $this->parser->getManualParts(self::PHP_FILE_PATH);
+        $parts = $this->parser->getManualParts(self::PHP_FILE_PATH);
         self::assertEquals(
             "Summary\nLine 2",
-            $manualPage->getDocblock()
+            $parts->getDocblock()
         );
     }
 
@@ -55,7 +55,7 @@ class PhpParserTest extends TestCase
         ';
 
         file_put_contents(self::PHP_FILE_PATH, $content);
-        $manualPage = $this->parser->getManualParts(self::PHP_FILE_PATH);
+        $parts = $this->parser->getManualParts(self::PHP_FILE_PATH);
         self::assertEquals(
             [
                 new Property('boolProperty', 'bool'),
@@ -63,7 +63,7 @@ class PhpParserTest extends TestCase
                 new Property('mixedProperty', 'mixed'),
                 new Property('unionProperty', 'string|null'),
             ],
-            $manualPage->getProperties()
+            $parts->getProperties()
         );
     }
 
@@ -79,13 +79,13 @@ class PhpParserTest extends TestCase
         ';
 
         file_put_contents(self::PHP_FILE_PATH, $content);
-        $manualPage = $this->parser->getManualParts(self::PHP_FILE_PATH);
+        $parts = $this->parser->getManualParts(self::PHP_FILE_PATH);
         self::assertEquals(
             [
                 new Url('http://link1.com'),
                 new Url('http://link2.com')
             ],
-            $manualPage->getLinks()
+            $parts->getLinks()
         );
     }
 }

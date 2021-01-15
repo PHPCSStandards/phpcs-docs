@@ -5,7 +5,8 @@
         "beberlei/assert": "^3.3",
         "danielstjules/stringy": "^3.1",
         "roave/better-reflection": "^4.12",
-        "phpdocumentor/reflection-docblock": "^5.2"
+        "phpdocumentor/reflection-docblock": "^5.2",
+        "ext-simplexml": "*"
     },
     "autoload": {
         "psr-4": {
