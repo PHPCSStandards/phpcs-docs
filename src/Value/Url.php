@@ -16,4 +16,9 @@ class Url
     {
         return $this->url;
     }
+
+    public function __toString()
+    {
+        return $this->getUrl();
+    }
 }
