@@ -12,7 +12,7 @@ class NotASniffPath extends DomainException
         return new self(
             <<<MSG
             The file path provided does not follow the convention for a sniff class.
-            Must contain {Standard}/Sniffs/{Category}/{SniffName}.php
+            Must contain {Standard}/Sniffs/{Category}/{SniffName}Sniff.php
             Received: $path
             MSG
         );

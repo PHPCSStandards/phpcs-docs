@@ -12,7 +12,7 @@ class NotAViolationPath extends DomainException
         return new self(
             <<<MSG
             The file path provided does not follow the convention for violation documentation.
-            Must contain {Standard}/Docs/{Category}/{SniffName}/{ErrorCode}.xml
+            Must contain {Standard}/Docs/{Category}/{SniffName}Standard/{ErrorCode}.xml
             Received: $path
             MSG
         );

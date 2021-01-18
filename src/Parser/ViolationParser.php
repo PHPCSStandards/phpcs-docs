@@ -28,7 +28,7 @@ class ViolationParser
     private function getErrorCode(string $xmlFilePath): string
     {
         $part = '([^\/]*)';
-        preg_match("/$part\/Docs\/$part\/$part\/$part.xml/", $xmlFilePath, $matches);
+        preg_match("/$part\/Docs\/$part\/{$part}Standard\/$part\.xml/", $xmlFilePath, $matches);
         if ($matches === []) {
             throw NotAViolationPath::fromPath($xmlFilePath);
         }

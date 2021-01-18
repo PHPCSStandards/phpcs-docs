@@ -14,7 +14,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /** @covers \App\Parser\ViolationParser */
 class ViolationParserTest extends TestCase
 {
-    const XML_FILE_PATH = 'var/tests/src/Standard/Docs/Category/SniffName/ErrorCode.xml';
+    private const XML_FILE_PATH = 'var/tests/src/Standard/Docs/Category/MyStandard/ErrorCode.xml';
 
     private ViolationParser $parser;
 
@@ -29,7 +29,7 @@ class ViolationParserTest extends TestCase
         (new Filesystem())->dumpFile(self::XML_FILE_PATH, $content);
         self::assertEquals(
             new Violation(
-                'Standard.Category.SniffName.ErrorCode',
+                'Standard.Category.My.ErrorCode',
                 'Description',
                 [],
                 new Urls([])

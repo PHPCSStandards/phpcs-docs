@@ -186,14 +186,14 @@ class MarkdownGenerator implements Generator
             ```
             <details>
             <summary>{$violation->getCode()}</summary>
-            {$this->getViolation($violation)}
+            {$this->createViolationDoc($violation)}
             </details>
             ```
             MD;
         }, $violations);
     }
 
-    public function getViolation(Violation $doc): string
+    public function createViolationDoc(Violation $doc): string
     {
         return <<<MD
         {$doc->getDescription()}
