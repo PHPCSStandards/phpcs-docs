@@ -3,29 +3,36 @@ declare(strict_types=1);
 
 namespace App\Parser;
 
+use App\Parser\Exception\NotAViolationPath;
 use App\Value\Diff;
 use App\Value\Url;
-use App\Value\UserDoc;
+use App\Value\Violation;
 use SimpleXMLElement;
 use function Stringy\create as s;
 
-class UserDocParser
+class ViolationParser
 {
-    public function getUserDoc(string $filePath): UserDoc
+    public function parse(string $filePath): Violation
     {
         $doc = new SimpleXMLElement(file_get_contents($filePath));
 
-        return new UserDoc(
-            $this->getRuleCode($doc),
+        return new Violation(
+            $this->getErrorCode($filePath),
             $this->getDescription($doc),
             $this->getDiffs($doc),
             $this->getLinks($doc)
         );
     }
 
-    private function getRuleCode(SimpleXMLElement $doc): string
+    private function getErrorCode(string $filePath): string
     {
-        return (string)s((string)$doc->rule_code)->trim();
+        $part = '([^\/]*)';
+        preg_match("/$part\/Docs\/$part\/$part\/$part.xml/", $filePath, $matches);
+        if ($matches === []) {
+            throw NotAViolationPath::fromPath($filePath);
+        }
+
+        return sprintf('%s.%s.%s.%s', $matches[1], $matches[2], $matches[3], $matches[4]);
     }
 
     private function getDescription(SimpleXMLElement $doc): string

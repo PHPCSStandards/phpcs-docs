@@ -4,8 +4,10 @@ declare(strict_types=1);
 namespace App\Generator;
 
 use App\Value\Diff;
+use App\Value\Property;
+use App\Value\Sniff;
 use App\Value\Url;
-use App\Value\UserDoc;
+use App\Value\Violation;
 use Stringy\Stringy;
 use function Stringy\create as s;
 
@@ -15,25 +17,135 @@ class MarkdownGenerator implements Generator
     {
     }
 
-    public function createUserDoc(UserDoc $doc): string
+    public function fromSniff(Sniff $doc): string
     {
         return <<<MD
-        # {$doc->getRuleCode()}
+        # {$doc->getCode()}
         
-        {$doc->getDescription()}
+        {$doc->getDocblock()}
         
-        {$this->getComparisons($doc)}
-        {$this->getSeeAlso($doc)}
+        {$this->getPublicProperties($doc->getProperties())}
+        {$this->getSeeAlso($doc->getLinks())}
+        {$this->getViolations($doc->getViolations())}
         MD;
     }
 
-    private function getComparisons(UserDoc $doc): string
+    /**
+     * @param Property[] $properties
+     */
+    private function getPublicProperties(array $properties): string
+    {
+        if ($properties === []) {
+            return '';
+        }
+
+        $propertyLines = implode("\n", $this->getPublicPropertyLines($properties));
+
+        return <<<MD
+        ## Public Properties
+        
+        {$propertyLines}
+        
+        MD;
+    }
+
+    /**
+     * @param Property[] $properties
+     * @return string[]
+     */
+    private function getPublicPropertyLines(array $properties): array
+    {
+        return array_map(function (Property $property) {
+            return "- \${$property->getName()} : {$property->getType()} {$property->getDescription()}";
+        }, $properties);
+    }
+
+    /**
+     * @param Url[] $links
+     * @return string
+     */
+    private function getSeeAlso(array $links): string
+    {
+        if ($links === []) {
+            return '';
+        }
+
+        $linkLines = implode("\n", $this->getLinkLines($links));
+
+        return <<<MD
+        ## See Also
+        
+        {$linkLines}
+        
+        MD;
+    }
+
+    /**
+     * @param Url[] $links
+     * @return string[]
+     */
+    private function getLinkLines(array $links): array
+    {
+        return array_map(function (Url $url) {
+            return "- [$url]($url)";
+        }, $links);
+    }
+
+    /**
+     * @param Violation[] $violations
+     * @return string
+     */
+    private function getViolations(array $violations): string
+    {
+        if ($violations === []) {
+            return '';
+        }
+
+        $violations = implode("\n", $this->getViolationBlocks($violations));
+
+        return <<<MD
+        ## Troubleshooting
+        
+        {$violations}
+        
+        MD;
+    }
+
+    /**
+     * @param Violation[] $violations
+     * @return string[]
+     */
+    private function getViolationBlocks(array $violations): array
+    {
+        return array_map(function (Violation $violation): string {
+            return <<<MD
+            ```
+            <details>
+            <summary>{$violation->getCode()}</summary>
+            {$this->getViolation($violation)}
+            </details>
+            ```
+            MD;
+        }, $violations);
+    }
+
+    public function getViolation(Violation $doc): string
+    {
+        return <<<MD
+        {$doc->getDescription()}
+        
+        {$this->getComparisons($doc)}
+        {$this->getSeeAlso($doc->getLinks())}
+        MD;
+    }
+
+    private function getComparisons(Violation $doc): string
     {
         if ($doc->getDiffs() === []) {
             return '';
         }
 
-        $diffBlocks = implode("\n\n", $this->createDiffBlocks($doc));
+        $diffBlocks = implode("\n\n", $this->getDiffBlocks($doc->getDiffs()));
 
         return <<<MD
         ## Comparisons
@@ -43,20 +155,20 @@ class MarkdownGenerator implements Generator
         MD;
     }
 
-    private function getSeeAlso(UserDoc $doc): string
+    /**
+     * @param Diff[] $diffs
+     * @return string[]
+     */
+    private function getDiffBlocks(array $diffs): array
     {
-        if ($doc->getLinks() === []) {
-            return '';
-        }
-
-        $links = implode("\n", $this->createLinks($doc));
-
-        return <<<MD
-        ## See Also
-        
-        {$links}
-        
-        MD;
+        return array_map(function (Diff $diff): string {
+            return <<<MD
+            ```diff
+            {$this->prependLinesWith('-', $diff->getBefore())}
+            {$this->prependLinesWith('+', $diff->getAfter())}
+            ```
+            MD;
+        }, $diffs);
     }
 
     private function prependLinesWith(string $prefix, string $lines): string
@@ -66,30 +178,5 @@ class MarkdownGenerator implements Generator
         }, s($lines)->lines());
 
         return implode("\n", $prependedLines);
-    }
-
-    /**
-     * @return string[]
-     */
-    private function createDiffBlocks(UserDoc $doc): array
-    {
-        return array_map(function (Diff $diff): string {
-            return <<<MD
-            ```diff
-            {$this->prependLinesWith('-', $diff->getBefore())}
-            {$this->prependLinesWith('+', $diff->getAfter())}
-            ```
-            MD;
-        }, $doc->getDiffs());
-    }
-
-    /**
-     * @return string[]
-     */
-    private function createLinks(UserDoc $doc): array
-    {
-        return array_map(function (Url $url) {
-            return "- [$url]($url)";
-        }, $doc->getLinks());
     }
 }

@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace App\Value;
 
-class UserDoc
+class Violation
 {
-    private string $ruleCode;
+    private string $code;
     private string $description;
     /**
      * @var Diff[]
@@ -20,17 +20,17 @@ class UserDoc
      * @param Diff[] $diffs
      * @param Url[] $links
      */
-    public function __construct(string $ruleCode, string $description, array $diffs, array $links)
+    public function __construct(string $code, string $description, array $diffs, array $links)
     {
-        $this->ruleCode = $ruleCode;
+        $this->code = $code;
         $this->description = $description;
         $this->diffs = $diffs;
         $this->links = $links;
     }
 
-    public function getRuleCode(): string
+    public function getCode(): string
     {
-        return $this->ruleCode;
+        return $this->code;
     }
 
     public function getDescription(): string

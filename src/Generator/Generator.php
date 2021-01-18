@@ -3,9 +3,12 @@ declare(strict_types=1);
 
 namespace App\Generator;
 
-use App\Value\UserDoc;
+use App\Value\Sniff;
+use App\Value\Violation;
 
 interface Generator
 {
-    public function createUserDoc(UserDoc $doc): string;
+    public function getViolation(Violation $doc): string;
+
+    public function fromSniff(Sniff $doc): string;
 }
