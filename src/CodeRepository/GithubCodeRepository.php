@@ -3,14 +3,15 @@ declare(strict_types=1);
 
 namespace App\CodeRepository;
 
+use App\Value\Folder;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class GithubCodeRepository implements CodeRepository
 {
-    public function downloadCode(string $repoName): string
+    public function downloadCode(string $repoName): Folder
     {
-        $repoPath = self::CODE_DOWNLOAD_PATH . '/' . $repoName;
+        $repoPath = new Folder(self::CODE_DOWNLOAD_PATH . '/' . $repoName . '/');
 
         $process = $this->cloneOrPull($repoPath, $repoName);
         $process->run();
@@ -22,9 +23,9 @@ class GithubCodeRepository implements CodeRepository
         return $repoPath;
     }
 
-    private function cloneOrPull(string $repoPath, string $repoName): Process
+    private function cloneOrPull(Folder $repoPath, string $repoName): Process
     {
-        if (!is_dir($repoPath)) {
+        if (!is_dir((string)$repoPath)) {
             return new Process([
                 'git',
                 'clone',

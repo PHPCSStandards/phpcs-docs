@@ -4,27 +4,17 @@ declare(strict_types=1);
 namespace App\SniffFinder;
 
 use App\Parser\SniffParser;
-use App\Parser\ViolationParser;
-use App\Value\Standard;
+use App\Value\Folder;
 use GlobIterator;
 use Traversable;
 
 class FilesystemSniffFinder implements SniffFinder
 {
-    public function getSniffs(Standard $standard): Traversable
+    public function getSniffs(Folder $folder): Traversable
     {
         $parser = new SniffParser();
-        $glob = new GlobIterator($standard->getCodeLocation() . 'Sniffs/*/*Sniff.php');
-        foreach ($glob as $fileInfo) {
-            yield $parser->parse($fileInfo->getPathname());
-        }
-    }
-
-    public function getViolations(Standard $standard): Traversable
-    {
-        $parser = new ViolationParser();
-        $glob = new GlobIterator($standard->getCodeLocation() . 'Docs/*/*Standard/*.xml');
-        foreach ($glob as $fileInfo) {
+        $globSniffs = new GlobIterator($folder->getPath() . 'Sniffs/*/*Sniff.php');
+        foreach ($globSniffs as $fileInfo) {
             yield $parser->parse($fileInfo->getPathname());
         }
     }

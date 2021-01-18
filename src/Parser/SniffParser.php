@@ -9,6 +9,7 @@ use App\Value\Property;
 use App\Value\Sniff;
 use App\Value\Url;
 use App\Value\Urls;
+use GlobIterator;
 use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionProperty;
@@ -31,14 +32,21 @@ class SniffParser
         $xmlUrls = [];
         $description = '';
         $diffs = [];
-        $xmlFilePath = str_replace(['/Sniffs/', 'Sniff.php'], ['/Docs/', 'Standard.xml'], $phpFilePath);
-        if (file_exists($xmlFilePath)) {
-            $xml = new SimpleXMLElement(file_get_contents($xmlFilePath));
+        $xmlStandardPath = str_replace(['/Sniffs/', 'Sniff.php'], ['/Docs/', 'Standard.xml'], $phpFilePath);
+        if (file_exists($xmlStandardPath)) {
+            $xml = new SimpleXMLElement(file_get_contents($xmlStandardPath));
             $xmlUrls = $this->getXmlUrls($xml);
             $description = $this->getDescription($xml);
             $diffs = $this->getDiffs($xml);
         }
 
+        $xmlErrorGlob = new GlobIterator(
+            str_replace(['/Sniffs/', 'Sniff.php'], ['/Docs/', 'Standard/*.xml'], $phpFilePath)
+        );
+        $violations = [];
+        foreach ($xmlErrorGlob as $fileInfo) {
+            $violations[] = (new ViolationParser)->parse($fileInfo->getPathname());
+        }
         return new Sniff(
             $this->getCode($phpFilePath),
             $this->getDocBlock($classInfo->getDocComment()),
@@ -46,7 +54,7 @@ class SniffParser
             $this->getLinks($classInfo, $xmlUrls),
             $description,
             $diffs,
-            []
+            $violations
         );
     }
 

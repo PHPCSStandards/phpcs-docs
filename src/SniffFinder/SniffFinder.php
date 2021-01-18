@@ -3,9 +3,8 @@ declare(strict_types=1);
 
 namespace App\SniffFinder;
 
+use App\Value\Folder;
 use App\Value\Sniff;
-use App\Value\Standard;
-use App\Value\Violation;
 use Traversable;
 
 interface SniffFinder
@@ -13,10 +12,5 @@ interface SniffFinder
     /**
      * @return Traversable<Sniff>
      */
-    public function getSniffs(Standard $standard): Traversable;
-
-    /**
-     * @return Traversable<Violation>
-     */
-    public function getViolations(Standard $standard): Traversable;
+    public function getSniffs(Folder $folder): Traversable;
 }

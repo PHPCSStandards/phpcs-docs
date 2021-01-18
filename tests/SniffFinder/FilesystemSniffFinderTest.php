@@ -5,7 +5,7 @@ namespace App\Tests\SniffFinder;
 
 use App\SniffFinder\FilesystemSniffFinder;
 use App\Value\Sniff;
-use App\Value\Standard;
+use App\Value\Folder;
 use App\Value\Urls;
 use App\Value\Violation;
 use PHPUnit\Framework\TestCase;
@@ -30,6 +30,7 @@ class FilesystemSniffFinderTest extends TestCase
     {
         $this->writeSniffPhp();
         $this->writeSniffXml();
+        $this->writeViolationXml();
 
         self::assertEquals(
             [
@@ -40,30 +41,17 @@ class FilesystemSniffFinderTest extends TestCase
                     new Urls([]),
                     'Description',
                     [],
-                    []
+                    [
+                        new Violation(
+                            'Standard.Category.My.ErrorCode',
+                            'Description',
+                            [],
+                            new Urls([])
+                        )
+                    ]
                 )
             ],
-            iterator_to_array($this->finder->getSniffs(new Standard(
-                'var/tests/src/Standard/'
-            )))
-        );
-    }
-
-    /** @test */
-    public function getViolations()
-    {
-        $this->writeViolationXml();
-
-        self::assertEquals(
-            [
-                new Violation(
-                    'Standard.Category.My.ErrorCode',
-                    'Description',
-                    [],
-                    new Urls([])
-                )
-            ],
-            iterator_to_array($this->finder->getViolations(new Standard(
+            iterator_to_array($this->finder->getSniffs(new Folder(
                 'var/tests/src/Standard/'
             )))
         );
