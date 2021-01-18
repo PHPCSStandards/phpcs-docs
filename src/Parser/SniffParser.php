@@ -31,7 +31,7 @@ class SniffParser
         $xmlUrls = [];
         $description = '';
         $diffs = [];
-        $xmlFilePath = str_replace(['/Sniffs/', '.php'], ['/Docs/', '.xml'], $phpFilePath);
+        $xmlFilePath = str_replace(['/Sniffs/', 'Sniff.php'], ['/Docs/', 'Standard.xml'], $phpFilePath);
         if (file_exists($xmlFilePath)) {
             $xml = new SimpleXMLElement(file_get_contents($xmlFilePath));
             $xmlUrls = $this->getXmlUrls($xml);
@@ -89,7 +89,7 @@ class SniffParser
     private function getCode(string $filePath): string
     {
         $part = '([^\/]*)';
-        preg_match("/$part\/Sniffs\/$part\/$part.php/", $filePath, $matches);
+        preg_match("/$part\/Sniffs\/$part\/{$part}Sniff.php/", $filePath, $matches);
         if ($matches === []) {
             throw NotASniffPath::fromPath($filePath);
         }

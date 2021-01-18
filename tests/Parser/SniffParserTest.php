@@ -12,8 +12,8 @@ use Symfony\Component\Filesystem\Filesystem;
 /** @covers \App\Parser\SniffParser */
 class SniffParserTest extends TestCase
 {
-    const PHP_FILE_PATH = 'var/tests/src/Standard/Sniffs/Category/SniffName.php';
-    const XML_FILE_PATH = 'var/tests/src/Standard/Docs/Category/SniffName.xml';
+    const PHP_FILE_PATH = 'var/tests/src/Standard/Sniffs/Category/MySniff.php';
+    const XML_FILE_PATH = 'var/tests/src/Standard/Docs/Category/MyStandard.xml';
 
     private SniffParser $parser;
 
@@ -34,7 +34,7 @@ class SniffParserTest extends TestCase
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
         $doc = $this->parser->parse(self::PHP_FILE_PATH);
         self::assertEquals(
-            'Standard.Category.SniffName',
+            'Standard.Category.My',
             $doc->getCode()
         );
     }
@@ -146,7 +146,7 @@ class SniffParserTest extends TestCase
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
         $doc = $this->parser->parse(self::PHP_FILE_PATH);
         self::assertEquals(
-            'Standard.Category.SniffName',
+            'Standard.Category.My',
             $doc->getCode()
         );
     }
