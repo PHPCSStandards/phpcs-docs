@@ -7,7 +7,7 @@ use App\Value\Diff;
 use App\Value\Url;
 use App\Value\UserDoc;
 use SimpleXMLElement;
-use Stringy\Stringy as s;
+use function Stringy\create as s;
 
 class UserDocParser
 {
@@ -25,12 +25,12 @@ class UserDocParser
 
     private function getRuleCode(SimpleXMLElement $doc): string
     {
-        return (string)s::create((string)$doc->rule_code)->trim();
+        return (string)s((string)$doc->rule_code)->trim();
     }
 
     private function getDescription(SimpleXMLElement $doc): string
     {
-        return (string)s::create((string)$doc->standard)->trim();
+        return (string)s((string)$doc->standard)->trim();
     }
 
     /**
@@ -41,8 +41,8 @@ class UserDocParser
         $comparisons = [];
         foreach ($doc->code_comparison as $comparison) {
             $comparisons[] = new Diff(
-                (string)s::create((string)$comparison->code[1])->trim(),
-                (string)s::create((string)$comparison->code[0])->trim(),
+                (string)s((string)$comparison->code[1])->trim(),
+                (string)s((string)$comparison->code[0])->trim(),
             );
         }
 
@@ -61,7 +61,7 @@ class UserDocParser
         $links = [];
         foreach ($doc->links[0]->link as $link) {
             $links[] = new Url(
-                (string)s::create((string)$link)->trim()
+                (string)s((string)$link)->trim()
             );
         }
 
