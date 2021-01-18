@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Extractor;
+namespace App\Parser;
 
-use App\Value\PhpParts;
+use App\Value\DevDoc;
 use App\Value\Property;
 use App\Value\Url;
 use phpDocumentor\Reflection\DocBlockFactory;
@@ -14,15 +14,15 @@ use Roave\BetterReflection\Reflector\ClassReflector;
 use Roave\BetterReflection\SourceLocator\Type\SingleFileSourceLocator;
 use Roave\BetterReflection\Reflection as Roave;
 
-class PhpParser
+class DevDocParser
 {
-    public function getManualParts(string $filePath): PhpParts
+    public function getDevDoc(string $filePath): DevDoc
     {
         $astLocator = (new BetterReflection())->astLocator();
         $reflector = new ClassReflector(new SingleFileSourceLocator($filePath, $astLocator));
         $classInfo = $reflector->getAllClasses()[0];
 
-        return new PhpParts(
+        return new DevDoc(
             $this->getDocBlock($classInfo),
             $this->getProperties($classInfo),
             $this->getLinks($classInfo)

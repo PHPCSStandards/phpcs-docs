@@ -1,22 +1,22 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Extractor;
+namespace App\Tests\Parser;
 
-use App\Extractor\PhpParser;
+use App\Parser\DevDocParser;
 use App\Value\Property;
 use App\Value\Url;
 use PHPUnit\Framework\TestCase;
 
-/** @covers \App\Extractor\PhpParser */
-class PhpParserTest extends TestCase
+/** @covers \App\Parser\DevDocParser */
+class DevDocParserTest extends TestCase
 {
     const PHP_FILE_PATH = 'var/tests/MySniff.php';
-    private PhpParser $parser;
+    private DevDocParser $parser;
 
     protected function setUp(): void
     {
-        $this->parser = new PhpParser();
+        $this->parser = new DevDocParser();
     }
 
     /** @test */
@@ -32,7 +32,7 @@ class PhpParserTest extends TestCase
         ';
 
         file_put_contents(self::PHP_FILE_PATH, $content);
-        $parts = $this->parser->getManualParts(self::PHP_FILE_PATH);
+        $parts = $this->parser->getDevDoc(self::PHP_FILE_PATH);
         self::assertEquals(
             "Summary\nLine 2",
             $parts->getDocblock()
@@ -55,7 +55,7 @@ class PhpParserTest extends TestCase
         ';
 
         file_put_contents(self::PHP_FILE_PATH, $content);
-        $parts = $this->parser->getManualParts(self::PHP_FILE_PATH);
+        $parts = $this->parser->getDevDoc(self::PHP_FILE_PATH);
         self::assertEquals(
             [
                 new Property('boolProperty', 'bool'),
@@ -79,7 +79,7 @@ class PhpParserTest extends TestCase
         ';
 
         file_put_contents(self::PHP_FILE_PATH, $content);
-        $parts = $this->parser->getManualParts(self::PHP_FILE_PATH);
+        $parts = $this->parser->getDevDoc(self::PHP_FILE_PATH);
         self::assertEquals(
             [
                 new Url('http://link1.com'),

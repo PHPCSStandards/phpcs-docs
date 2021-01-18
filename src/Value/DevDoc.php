@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Value;
 
-class PhpParts
+class DevDoc
 {
     private string $docblock;
     /**

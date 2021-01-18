@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Extractor;
+namespace App\Parser;
 
 use App\Value\Diff;
 use App\Value\Url;
@@ -9,7 +9,7 @@ use App\Value\XmlParts;
 use SimpleXMLElement;
 use Stringy\Stringy as s;
 
-class XmlParser
+class UserDocParser
 {
     public function getManualParts(string $filePath): XmlParts
     {

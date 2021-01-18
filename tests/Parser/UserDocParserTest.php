@@ -1,23 +1,23 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Tests\Extractor;
+namespace App\Tests\Parser;
 
-use App\Extractor\XmlParser;
+use App\Parser\UserDocParser;
 use App\Value\Diff;
 use App\Value\Url;
 use App\Value\XmlParts;
 use PHPUnit\Framework\TestCase;
 
-/** @covers \App\Extractor\XmlParser */
-class XmlParserTest extends TestCase
+/** @covers \App\Parser\UserDocParser */
+class UserDocParserTest extends TestCase
 {
     const XML_FILE_PATH = 'var/tests/MySniff.xml';
-    private XmlParser $parser;
+    private UserDocParser $parser;
 
     protected function setUp(): void
     {
-        $this->parser = new XmlParser();
+        $this->parser = new UserDocParser();
     }
 
     /** @test */
