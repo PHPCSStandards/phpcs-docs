@@ -52,20 +52,20 @@ class UserDocParserTest extends TestCase
             <code_comparison>
                 <code>
                 <![CDATA[
-        function a() {
+        function b() {
         }
                 ]]>
                 </code>
                 <code>
                 <![CDATA[
-        function b() {
+        function a() {
         }
                 ]]>
                 </code>
             </code_comparison>
             <code_comparison>
-                <code>a();</code>
                 <code>b();</code>
+                <code>a();</code>
             </code_comparison>
         </documentation>
         XML;
@@ -73,8 +73,8 @@ class UserDocParserTest extends TestCase
         $doc = $this->parser->getUserDoc(self::XML_FILE_PATH);
         self::assertEquals(
             [
-                new Diff("function b() {\n}", "function a() {\n}"),
-                new Diff('b();', 'a();'),
+                new Diff("function a() {\n}", "function b() {\n}"),
+                new Diff('a();', 'b();'),
             ],
             $doc->getDiffs()
         );
