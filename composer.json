@@ -7,7 +7,8 @@
         "roave/better-reflection": "^4.12",
         "phpdocumentor/reflection-docblock": "^5.2",
         "ext-simplexml": "*",
-        "symfony/filesystem": "^5.2"
+        "symfony/filesystem": "^5.2",
+        "symfony/process": "^5.2"
     },
     "autoload": {
         "psr-4": {
