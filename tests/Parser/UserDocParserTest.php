@@ -23,12 +23,12 @@ class UserDocParserTest extends TestCase
     /** @test */
     public function getManualParts_WithMinimumTags_CreatePartsObject()
     {
-        $content = '
+        $content = <<<XML
         <documentation title="Title">
             <rule_code>Rule.Code</rule_code>
             <standard>Description</standard>
         </documentation>
-';
+        XML;
         file_put_contents(self::XML_FILE_PATH, $content);
         $parts = $this->parser->getManualParts(self::XML_FILE_PATH);
         self::assertEquals(
@@ -45,21 +45,21 @@ class UserDocParserTest extends TestCase
     /** @test */
     public function getManualParts_WithCodeComparisons_AddTrimmedDiffs()
     {
-        $content = '
+        $content = <<<XML
         <documentation title="Title">
             <rule_code>Rule.Code</rule_code>
             <standard>Description</standard>
             <code_comparison>
                 <code>
                 <![CDATA[
-function a() {
-}
+        function a() {
+        }
                 ]]>
                 </code>
                 <code>
                 <![CDATA[
-function b() {
-}
+        function b() {
+        }
                 ]]>
                 </code>
             </code_comparison>
@@ -68,7 +68,7 @@ function b() {
                 <code>b();</code>
             </code_comparison>
         </documentation>
-';
+        XML;
         file_put_contents(self::XML_FILE_PATH, $content);
         $parts = $this->parser->getManualParts(self::XML_FILE_PATH);
         self::assertEquals(
@@ -83,7 +83,7 @@ function b() {
     /** @test */
     public function getManualParts_WithLinks_AddLinks()
     {
-        $content = '
+        $content = <<<XML
         <documentation title="Title">
             <rule_code>Rule.Code</rule_code>
             <standard>Description</standard>
@@ -92,7 +92,7 @@ function b() {
                 <link>http://link2.com</link>
             </links>
         </documentation>
-';
+        XML;
         file_put_contents(self::XML_FILE_PATH, $content);
         $parts = $this->parser->getManualParts(self::XML_FILE_PATH);
         self::assertEquals(
