@@ -6,7 +6,7 @@ namespace App\Tests\Parser;
 use App\Parser\UserDocParser;
 use App\Value\Diff;
 use App\Value\Url;
-use App\Value\XmlParts;
+use App\Value\UserDoc;
 use PHPUnit\Framework\TestCase;
 
 /** @covers \App\Parser\UserDocParser */
@@ -21,7 +21,7 @@ class UserDocParserTest extends TestCase
     }
 
     /** @test */
-    public function getManualParts_WithMinimumTags_CreatePartsObject()
+    public function getUserDoc_WithMinimumTags_CreateUserDocObject()
     {
         $content = <<<XML
         <documentation title="Title">
@@ -30,20 +30,20 @@ class UserDocParserTest extends TestCase
         </documentation>
         XML;
         file_put_contents(self::XML_FILE_PATH, $content);
-        $parts = $this->parser->getManualParts(self::XML_FILE_PATH);
+        $doc = $this->parser->getUserDoc(self::XML_FILE_PATH);
         self::assertEquals(
-            new XmlParts(
+            new UserDoc(
                 'Rule.Code',
                 'Description',
                 [],
                 []
             ),
-            $parts
+            $doc
         );
     }
 
     /** @test */
-    public function getManualParts_WithCodeComparisons_AddTrimmedDiffs()
+    public function getUserDoc_WithCodeComparisons_AddTrimmedDiffs()
     {
         $content = <<<XML
         <documentation title="Title">
@@ -70,18 +70,18 @@ class UserDocParserTest extends TestCase
         </documentation>
         XML;
         file_put_contents(self::XML_FILE_PATH, $content);
-        $parts = $this->parser->getManualParts(self::XML_FILE_PATH);
+        $doc = $this->parser->getUserDoc(self::XML_FILE_PATH);
         self::assertEquals(
             [
                 new Diff("function a() {\n}", "function b() {\n}"),
                 new Diff('a();', 'b();'),
             ],
-            $parts->getDiffs()
+            $doc->getDiffs()
         );
     }
 
     /** @test */
-    public function getManualParts_WithLinks_AddLinks()
+    public function getUserDoc_WithLinks_AddLinks()
     {
         $content = <<<XML
         <documentation title="Title">
@@ -94,13 +94,13 @@ class UserDocParserTest extends TestCase
         </documentation>
         XML;
         file_put_contents(self::XML_FILE_PATH, $content);
-        $parts = $this->parser->getManualParts(self::XML_FILE_PATH);
+        $doc = $this->parser->getUserDoc(self::XML_FILE_PATH);
         self::assertEquals(
             [
                 new Url('http://link1.com'),
                 new Url('http://link2.com')
             ],
-            $parts->getLinks()
+            $doc->getLinks()
         );
     }
 }

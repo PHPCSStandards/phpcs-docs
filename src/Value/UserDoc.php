@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Value;
 
-class XmlParts
+class UserDoc
 {
     private string $ruleCode;
     private string $description;

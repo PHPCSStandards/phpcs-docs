@@ -5,17 +5,17 @@ namespace App\Parser;
 
 use App\Value\Diff;
 use App\Value\Url;
-use App\Value\XmlParts;
+use App\Value\UserDoc;
 use SimpleXMLElement;
 use Stringy\Stringy as s;
 
 class UserDocParser
 {
-    public function getManualParts(string $filePath): XmlParts
+    public function getUserDoc(string $filePath): UserDoc
     {
         $doc = new SimpleXMLElement(file_get_contents($filePath));
 
-        return new XmlParts(
+        return new UserDoc(
             $this->getRuleCode($doc),
             $this->getDescription($doc),
             $this->getDiffs($doc),

@@ -20,7 +20,7 @@ class DevDocParserTest extends TestCase
     }
 
     /** @test */
-    public function getManualParts_WithDocblockSummary_AddSummaryOnly()
+    public function getDevDoc_WithDocblockSummary_AddSummaryOnly()
     {
         $content = '<?php
         /**
@@ -32,15 +32,15 @@ class DevDocParserTest extends TestCase
         ';
 
         file_put_contents(self::PHP_FILE_PATH, $content);
-        $parts = $this->parser->getDevDoc(self::PHP_FILE_PATH);
+        $doc = $this->parser->getDevDoc(self::PHP_FILE_PATH);
         self::assertEquals(
             "Summary\nLine 2",
-            $parts->getDocblock()
+            $doc->getDocblock()
         );
     }
 
     /** @test */
-    public function getManualParts_WithProperties_AddPublicOnly()
+    public function getDevDoc_WithProperties_AddPublicOnly()
     {
         $content = '<?php
         class MySniff {
@@ -55,7 +55,7 @@ class DevDocParserTest extends TestCase
         ';
 
         file_put_contents(self::PHP_FILE_PATH, $content);
-        $parts = $this->parser->getDevDoc(self::PHP_FILE_PATH);
+        $doc = $this->parser->getDevDoc(self::PHP_FILE_PATH);
         self::assertEquals(
             [
                 new Property('boolProperty', 'bool'),
@@ -63,12 +63,12 @@ class DevDocParserTest extends TestCase
                 new Property('mixedProperty', 'mixed'),
                 new Property('unionProperty', 'string|null'),
             ],
-            $parts->getProperties()
+            $doc->getProperties()
         );
     }
 
     /** @test */
-    public function getManualParts_WithMultipleLinks_AddLinks()
+    public function getDevDoc_WithMultipleLinks_AddLinks()
     {
         $content = '<?php
         /**
@@ -79,13 +79,13 @@ class DevDocParserTest extends TestCase
         ';
 
         file_put_contents(self::PHP_FILE_PATH, $content);
-        $parts = $this->parser->getDevDoc(self::PHP_FILE_PATH);
+        $doc = $this->parser->getDevDoc(self::PHP_FILE_PATH);
         self::assertEquals(
             [
                 new Url('http://link1.com'),
                 new Url('http://link2.com')
             ],
-            $parts->getLinks()
+            $doc->getLinks()
         );
     }
 }
