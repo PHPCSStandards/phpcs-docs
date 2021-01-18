@@ -7,6 +7,7 @@ use App\Parser\SniffParser;
 use App\Value\Property;
 use App\Value\Url;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 /** @covers \App\Parser\SniffParser */
 class SniffParserTest extends TestCase
@@ -28,7 +29,7 @@ class SniffParserTest extends TestCase
         class SniffName {}
         ';
 
-        file_put_contents(self::PHP_FILE_PATH, $content);
+        (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
         $doc = $this->parser->parse(self::PHP_FILE_PATH);
         self::assertEquals(
             'Standard.Category.SniffName',
@@ -50,7 +51,7 @@ class SniffParserTest extends TestCase
         class SniffName {}
         ';
 
-        file_put_contents(self::PHP_FILE_PATH, $content);
+        (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
         $doc = $this->parser->parse(self::PHP_FILE_PATH);
         self::assertEquals(
             "Summary\n\nDescription",
@@ -68,7 +69,7 @@ class SniffParserTest extends TestCase
         class SniffName {}
         ';
 
-        file_put_contents(self::PHP_FILE_PATH, $content);
+        (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
         $doc = $this->parser->parse(self::PHP_FILE_PATH);
         self::assertEquals(
             'Summary',
@@ -91,7 +92,7 @@ class SniffParserTest extends TestCase
         }
         ';
 
-        file_put_contents(self::PHP_FILE_PATH, $content);
+        (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
         $doc = $this->parser->parse(self::PHP_FILE_PATH);
         self::assertEquals(
             [
@@ -115,7 +116,7 @@ class SniffParserTest extends TestCase
         class SniffName {}
         ';
 
-        file_put_contents(self::PHP_FILE_PATH, $content);
+        (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
         $doc = $this->parser->parse(self::PHP_FILE_PATH);
         self::assertEquals(
             [

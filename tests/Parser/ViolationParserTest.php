@@ -62,7 +62,7 @@ class ViolationParserTest extends TestCase
             </code_comparison>
         </documentation>
         XML;
-        file_put_contents(self::XML_FILE_PATH, $content);
+        (new Filesystem())->dumpFile(self::XML_FILE_PATH, $content);
         self::assertEquals(
             [
                 new Diff("function a() {\n}", "function b() {\n}"),
@@ -84,7 +84,7 @@ class ViolationParserTest extends TestCase
             </links>
         </documentation>
         XML;
-        file_put_contents(self::XML_FILE_PATH, $content);
+        (new Filesystem())->dumpFile(self::XML_FILE_PATH, $content);
         self::assertEquals(
             [
                 new Url('http://link1.com'),
