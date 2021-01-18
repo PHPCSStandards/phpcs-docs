@@ -73,8 +73,8 @@ class UserDocParserTest extends TestCase
         $doc = $this->parser->getUserDoc(self::XML_FILE_PATH);
         self::assertEquals(
             [
-                new Diff("function a() {\n}", "function b() {\n}"),
-                new Diff('a();', 'b();'),
+                new Diff("function b() {\n}", "function a() {\n}"),
+                new Diff('b();', 'a();'),
             ],
             $doc->getDiffs()
         );

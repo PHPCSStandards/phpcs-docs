@@ -41,8 +41,8 @@ class UserDocParser
         $comparisons = [];
         foreach ($doc->code_comparison as $comparison) {
             $comparisons[] = new Diff(
-                (string)s::create((string)$comparison->code[0])->trim(),
                 (string)s::create((string)$comparison->code[1])->trim(),
+                (string)s::create((string)$comparison->code[0])->trim(),
             );
         }
 
