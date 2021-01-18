@@ -11,16 +11,12 @@ class Violation
      * @var Diff[]
      */
     private array $diffs;
-    /**
-     * @var Url[]
-     */
-    private array $links;
+    private Urls $links;
 
     /**
      * @param Diff[] $diffs
-     * @param Url[] $links
      */
-    public function __construct(string $code, string $description, array $diffs, array $links)
+    public function __construct(string $code, string $description, array $diffs, Urls $links)
     {
         $this->code = $code;
         $this->description = $description;
@@ -46,10 +42,7 @@ class Violation
         return $this->diffs;
     }
 
-    /**
-     * @return Url[]
-     */
-    public function getLinks(): array
+    public function getLinks(): Urls
     {
         return $this->links;
     }

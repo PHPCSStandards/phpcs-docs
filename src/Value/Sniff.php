@@ -11,10 +11,12 @@ class Sniff
      * @var Property[]
      */
     private array $properties;
+    private Urls $links;
+    private string $description;
     /**
-     * @var Url[]
+     * @var Diff[]
      */
-    private array $links;
+    private array $diffs;
     /**
      * @var Violation[]
      */
@@ -22,15 +24,25 @@ class Sniff
 
     /**
      * @param Property[] $properties
-     * @param Url[] $links
+     * @param Diff[] $diffs
      * @param Violation[] $violations
      */
-    public function __construct(string $code, string $docblock, array $properties, array $links, array $violations)
+    public function __construct(
+        string $code,
+        string $docblock,
+        array $properties,
+        Urls $links,
+        string $description,
+        array $diffs,
+        array $violations
+    )
     {
         $this->code = $code;
         $this->docblock = $docblock;
         $this->properties = array_values($properties);
-        $this->links = array_values($links);
+        $this->links = $links;
+        $this->description = $description;
+        $this->diffs = $diffs;
         $this->violations = $violations;
     }
 
@@ -52,12 +64,22 @@ class Sniff
         return $this->properties;
     }
 
-    /**
-     * @return Url[]
-     */
-    public function getLinks(): array
+    public function getLinks(): Urls
     {
         return $this->links;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @return Diff[]
+     */
+    public function getDiffs(): array
+    {
+        return $this->diffs;
     }
 
     /**

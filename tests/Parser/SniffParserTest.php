@@ -12,7 +12,9 @@ use Symfony\Component\Filesystem\Filesystem;
 /** @covers \App\Parser\SniffParser */
 class SniffParserTest extends TestCase
 {
-    const PHP_FILE_PATH = 'var/tests/Standard/Sniffs/Category/SniffName.php';
+    const PHP_FILE_PATH = 'var/tests/src/Standard/Sniffs/Category/SniffName.php';
+    const XML_FILE_PATH = 'var/tests/src/Standard/Docs/Category/SniffName.xml';
+
     private SniffParser $parser;
 
     /** @test */
@@ -123,7 +125,62 @@ class SniffParserTest extends TestCase
                 new Url('http://link1.com'),
                 new Url('http://link2.com')
             ],
-            $doc->getLinks()
+            $doc->getLinks()->getUrls()
+        );
+    }
+
+    /** @test */
+    public function parse_WithXmlDocs_AddProperties()
+    {
+        $content = '<?php
+        /**
+         * Summary
+         *
+         * Description
+         *
+         * @since 1.0.0
+         */
+        class SniffName {}
+        ';
+
+        (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
+        $doc = $this->parser->parse(self::PHP_FILE_PATH);
+        self::assertEquals(
+            'Standard.Category.SniffName',
+            $doc->getCode()
+        );
+    }
+
+    /** @test */
+    public function parse_WithXmlLinks_MergeLinks()
+    {
+        $content = '<?php
+        /**
+         * @link http://link1.com
+         * @link http://link3.com
+         */
+        class SniffName {}
+        ';
+
+        (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
+
+        $content = <<<XML
+        <documentation title="Title">
+            <standard>Description</standard>
+            <link>http://link1.com</link>
+            <link>http://link2.com</link>
+        </documentation>
+        XML;
+        (new Filesystem())->dumpFile(self::XML_FILE_PATH, $content);
+
+        $doc = $this->parser->parse(self::PHP_FILE_PATH);
+        self::assertEquals(
+            [
+                new Url('http://link1.com'),
+                new Url('http://link3.com'),
+                new Url('http://link2.com')
+            ],
+            $doc->getLinks()->getUrls()
         );
     }
 

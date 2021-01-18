@@ -6,6 +6,7 @@ namespace App\Tests\Parser;
 use App\Parser\ViolationParser;
 use App\Value\Diff;
 use App\Value\Url;
+use App\Value\Urls;
 use App\Value\Violation;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -13,7 +14,8 @@ use Symfony\Component\Filesystem\Filesystem;
 /** @covers \App\Parser\ViolationParser */
 class ViolationParserTest extends TestCase
 {
-    const XML_FILE_PATH = 'var/tests/Standard/Docs/Category/SniffName/ErrorCode.xml';
+    const XML_FILE_PATH = 'var/tests/src/Standard/Docs/Category/SniffName/ErrorCode.xml';
+
     private ViolationParser $parser;
 
     /** @test */
@@ -30,7 +32,7 @@ class ViolationParserTest extends TestCase
                 'Standard.Category.SniffName.ErrorCode',
                 'Description',
                 [],
-                []
+                new Urls([])
             ),
             $this->parser->parse(self::XML_FILE_PATH)
         );
@@ -78,10 +80,8 @@ class ViolationParserTest extends TestCase
         $content = <<<XML
         <documentation title="Title">
             <standard>Description</standard>
-            <links>
-                <link>http://link1.com</link>
-                <link>http://link2.com</link>
-            </links>
+            <link>http://link1.com</link>
+            <link>http://link2.com</link>
         </documentation>
         XML;
         (new Filesystem())->dumpFile(self::XML_FILE_PATH, $content);
@@ -90,7 +90,7 @@ class ViolationParserTest extends TestCase
                 new Url('http://link1.com'),
                 new Url('http://link2.com')
             ],
-            $this->parser->parse(self::XML_FILE_PATH)->getLinks()
+            $this->parser->parse(self::XML_FILE_PATH)->getLinks()->getUrls()
         );
     }
 

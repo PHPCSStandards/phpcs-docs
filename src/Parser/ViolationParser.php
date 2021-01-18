@@ -6,47 +6,48 @@ namespace App\Parser;
 use App\Parser\Exception\NotAViolationPath;
 use App\Value\Diff;
 use App\Value\Url;
+use App\Value\Urls;
 use App\Value\Violation;
 use SimpleXMLElement;
 use function Stringy\create as s;
 
 class ViolationParser
 {
-    public function parse(string $filePath): Violation
+    public function parse(string $xmlFilePath): Violation
     {
-        $doc = new SimpleXMLElement(file_get_contents($filePath));
+        $xml = new SimpleXMLElement(file_get_contents($xmlFilePath));
 
         return new Violation(
-            $this->getErrorCode($filePath),
-            $this->getDescription($doc),
-            $this->getDiffs($doc),
-            $this->getLinks($doc)
+            $this->getErrorCode($xmlFilePath),
+            $this->getDescription($xml),
+            $this->getDiffs($xml),
+            $this->getLinks($xml)
         );
     }
 
-    private function getErrorCode(string $filePath): string
+    private function getErrorCode(string $xmlFilePath): string
     {
         $part = '([^\/]*)';
-        preg_match("/$part\/Docs\/$part\/$part\/$part.xml/", $filePath, $matches);
+        preg_match("/$part\/Docs\/$part\/$part\/$part.xml/", $xmlFilePath, $matches);
         if ($matches === []) {
-            throw NotAViolationPath::fromPath($filePath);
+            throw NotAViolationPath::fromPath($xmlFilePath);
         }
 
         return sprintf('%s.%s.%s.%s', $matches[1], $matches[2], $matches[3], $matches[4]);
     }
 
-    private function getDescription(SimpleXMLElement $doc): string
+    private function getDescription(SimpleXMLElement $xml): string
     {
-        return (string)s((string)$doc->standard)->trim();
+        return (string)s((string)$xml->standard)->trim();
     }
 
     /**
      * @return Diff[]
      */
-    private function getDiffs(SimpleXMLElement $doc): array
+    private function getDiffs(SimpleXMLElement $xml): array
     {
         $comparisons = [];
-        foreach ($doc->code_comparison as $comparison) {
+        foreach ($xml->code_comparison as $comparison) {
             $comparisons[] = new Diff(
                 (string)s((string)$comparison->code[1])->trim(),
                 (string)s((string)$comparison->code[0])->trim(),
@@ -56,22 +57,15 @@ class ViolationParser
         return $comparisons;
     }
 
-    /**
-     * @return Url[]
-     */
-    private function getLinks(SimpleXMLElement $doc): array
+    private function getLinks(SimpleXMLElement $xml): Urls
     {
-        if (count($doc->links) === 0) {
-            return [];
-        }
-
         $links = [];
-        foreach ($doc->links[0]->link as $link) {
+        foreach ($xml->link as $link) {
             $links[] = new Url(
                 (string)s((string)$link)->trim()
             );
         }
 
-        return $links;
+        return new Urls($links);
     }
 }

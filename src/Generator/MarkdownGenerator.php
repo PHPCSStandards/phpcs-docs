@@ -7,6 +7,7 @@ use App\Value\Diff;
 use App\Value\Property;
 use App\Value\Sniff;
 use App\Value\Url;
+use App\Value\Urls;
 use App\Value\Violation;
 use Stringy\Stringy;
 use function Stringy\create as s;
@@ -17,17 +18,82 @@ class MarkdownGenerator implements Generator
     {
     }
 
-    public function fromSniff(Sniff $doc): string
+    public function createSniffDoc(Sniff $sniff): string
     {
         return <<<MD
-        # {$doc->getCode()}
+        # {$sniff->getCode()}
         
-        {$doc->getDocblock()}
-        
-        {$this->getPublicProperties($doc->getProperties())}
-        {$this->getSeeAlso($doc->getLinks())}
-        {$this->getViolations($doc->getViolations())}
+        {$this->getDescription($sniff)}
+        {$this->getDocblock($sniff)}
+        {$this->getComparisons($sniff->getDiffs())}
+        {$this->getPublicProperties($sniff->getProperties())}
+        {$this->getSeeAlso($sniff->getLinks())}
+        {$this->getViolations($sniff->getViolations())}
         MD;
+    }
+
+    private function getDescription(Sniff $sniff): string
+    {
+        return <<<MD
+        {$sniff->getDescription()}
+        
+        MD;
+    }
+
+    private function getDocblock(Sniff $sniff): string
+    {
+        if ($sniff->getDocblock() === '') {
+            return '';
+        }
+
+        return <<<MD
+        ## Docblock
+        
+        {$sniff->getDocblock()}
+        MD;
+    }
+
+    /**
+     * @param Diff[] $diffs
+     */
+    private function getComparisons(array $diffs): string
+    {
+        if ($diffs === []) {
+            return '';
+        }
+
+        $diffBlocks = implode("\n\n", $this->getDiffBlocks($diffs));
+
+        return <<<MD
+        ## Comparisons
+        
+        {$diffBlocks}
+        MD;
+    }
+
+    /**
+     * @param Diff[] $diffs
+     * @return string[]
+     */
+    private function getDiffBlocks(array $diffs): array
+    {
+        return array_map(function (Diff $diff): string {
+            return <<<MD
+            ```diff
+            {$this->prependLinesWith('-', $diff->getBefore())}
+            {$this->prependLinesWith('+', $diff->getAfter())}
+            ```
+            MD;
+        }, $diffs);
+    }
+
+    private function prependLinesWith(string $prefix, string $lines): string
+    {
+        $prependedLines = array_map(function (Stringy $line) use ($prefix) {
+            return (string)$line->prepend($prefix);
+        }, s($lines)->lines());
+
+        return implode("\n", $prependedLines);
     }
 
     /**
@@ -61,10 +127,9 @@ class MarkdownGenerator implements Generator
     }
 
     /**
-     * @param Url[] $links
      * @return string
      */
-    private function getSeeAlso(array $links): string
+    private function getSeeAlso(Urls $links): string
     {
         if ($links === []) {
             return '';
@@ -81,14 +146,13 @@ class MarkdownGenerator implements Generator
     }
 
     /**
-     * @param Url[] $links
      * @return string[]
      */
-    private function getLinkLines(array $links): array
+    private function getLinkLines(Urls $links): array
     {
         return array_map(function (Url $url) {
             return "- [$url]($url)";
-        }, $links);
+        }, $links->getUrls());
     }
 
     /**
@@ -134,49 +198,9 @@ class MarkdownGenerator implements Generator
         return <<<MD
         {$doc->getDescription()}
         
-        {$this->getComparisons($doc)}
+        {$this->getComparisons($doc->getDiffs())}
+        
         {$this->getSeeAlso($doc->getLinks())}
         MD;
-    }
-
-    private function getComparisons(Violation $doc): string
-    {
-        if ($doc->getDiffs() === []) {
-            return '';
-        }
-
-        $diffBlocks = implode("\n\n", $this->getDiffBlocks($doc->getDiffs()));
-
-        return <<<MD
-        ## Comparisons
-        
-        {$diffBlocks}
-        
-        MD;
-    }
-
-    /**
-     * @param Diff[] $diffs
-     * @return string[]
-     */
-    private function getDiffBlocks(array $diffs): array
-    {
-        return array_map(function (Diff $diff): string {
-            return <<<MD
-            ```diff
-            {$this->prependLinesWith('-', $diff->getBefore())}
-            {$this->prependLinesWith('+', $diff->getAfter())}
-            ```
-            MD;
-        }, $diffs);
-    }
-
-    private function prependLinesWith(string $prefix, string $lines): string
-    {
-        $prependedLines = array_map(function (Stringy $line) use ($prefix) {
-            return (string)$line->prepend($prefix);
-        }, s($lines)->lines());
-
-        return implode("\n", $prependedLines);
     }
 }

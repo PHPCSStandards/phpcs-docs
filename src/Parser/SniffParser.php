@@ -4,9 +4,11 @@ declare(strict_types=1);
 namespace App\Parser;
 
 use App\Parser\Exception\NotASniffPath;
+use App\Value\Diff;
 use App\Value\Property;
 use App\Value\Sniff;
 use App\Value\Url;
+use App\Value\Urls;
 use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\DocBlockFactory;
 use ReflectionProperty;
@@ -15,22 +17,73 @@ use Roave\BetterReflection\Reflection as Roave;
 use Roave\BetterReflection\Reflection\ReflectionClass;
 use Roave\BetterReflection\Reflector\ClassReflector;
 use Roave\BetterReflection\SourceLocator\Type\SingleFileSourceLocator;
+use SimpleXMLElement;
+use function Stringy\create as s;
 
 class SniffParser
 {
-    public function parse(string $filePath): Sniff
+    public function parse(string $phpFilePath): Sniff
     {
         $astLocator = (new BetterReflection())->astLocator();
-        $reflector = new ClassReflector(new SingleFileSourceLocator($filePath, $astLocator));
+        $reflector = new ClassReflector(new SingleFileSourceLocator($phpFilePath, $astLocator));
         $classInfo = $reflector->getAllClasses()[0];
 
+        $xmlUrls = [];
+        $description = '';
+        $diffs = [];
+        $xmlFilePath = str_replace(['/Sniffs/', '.php'], ['/Docs/', '.xml'], $phpFilePath);
+        if (file_exists($xmlFilePath)) {
+            $xml = new SimpleXMLElement(file_get_contents($xmlFilePath));
+            $xmlUrls = $this->getXmlUrls($xml);
+            $description = $this->getDescription($xml);
+            $diffs = $this->getDiffs($xml);
+        }
+
         return new Sniff(
-            $this->getCode($filePath),
+            $this->getCode($phpFilePath),
             $this->getDocBlock($classInfo->getDocComment()),
             $this->getProperties($classInfo),
-            $this->getLinks($classInfo),
+            $this->getLinks($classInfo, $xmlUrls),
+            $description,
+            $diffs,
             []
         );
+    }
+
+    /**
+     * @return Url[]
+     */
+    private function getXmlUrls(SimpleXMLElement $xml): array
+    {
+        $links = [];
+        foreach ($xml->link as $link) {
+            $links[] = new Url(
+                (string)s((string)$link)->trim()
+            );
+        }
+
+        return $links;
+    }
+
+    private function getDescription(SimpleXMLElement $xml): string
+    {
+        return (string)s((string)$xml->standard)->trim();
+    }
+
+    /**
+     * @return Diff[]
+     */
+    private function getDiffs(SimpleXMLElement $xml): array
+    {
+        $comparisons = [];
+        foreach ($xml->code_comparison as $comparison) {
+            $comparisons[] = new Diff(
+                (string)s((string)$comparison->code[1])->trim(),
+                (string)s((string)$comparison->code[0])->trim(),
+            );
+        }
+
+        return $comparisons;
     }
 
     private function getCode(string $filePath): string
@@ -110,20 +163,22 @@ class SniffParser
     }
 
     /**
-     * @return Url[]
+     * @param Url[] $xmlUrls
      */
-    private function getLinks(ReflectionClass $classInfo): array
+    private function getLinks(ReflectionClass $classInfo, array $xmlUrls): Urls
     {
         if ($classInfo->getDocComment() === '') {
-            return [];
+            return new Urls([]);
         }
 
         $links = DocBlockFactory::createInstance()
             ->create($classInfo->getDocComment())
             ->getTagsByName('link');
 
-        return array_map(function (string $url) {
+        $urls = array_map(function (string $url) {
             return new Url($url);
         }, $links);
+
+        return new Urls(array_merge($urls, $xmlUrls));
     }
 }

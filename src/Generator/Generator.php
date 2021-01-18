@@ -10,5 +10,5 @@ interface Generator
 {
     public function getViolation(Violation $doc): string;
 
-    public function fromSniff(Sniff $doc): string;
+    public function createSniffDoc(Sniff $sniff): string;
 }

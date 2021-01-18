@@ -8,6 +8,7 @@ use App\Value\Diff;
 use App\Value\Property;
 use App\Value\Sniff;
 use App\Value\Url;
+use App\Value\Urls;
 use App\Value\Violation;
 use PHPUnit\Framework\TestCase;
 
@@ -26,10 +27,12 @@ class MarkdownGeneratorTest extends TestCase
                 new Property('a', 'string', 'DescriptionA'),
                 new Property('b', 'int', 'DescriptionB')
             ],
-            [
+            new Urls([
                 new Url('http://link1.com'),
                 new Url('http://link2.com')
-            ],
+            ]),
+            'Description',
+            [],
             [
                 new Violation(
                     'Generic.MySniff.ErrorCode',
@@ -38,10 +41,10 @@ class MarkdownGeneratorTest extends TestCase
                         new Diff('a();', 'b();'),
                         new Diff('a();', 'b();')
                     ],
-                    [
+                    new Urls([
                         new Url('http://link1.com'),
                         new Url('http://link2.com')
-                    ]
+                    ])
                 )
             ]
         );
@@ -49,6 +52,10 @@ class MarkdownGeneratorTest extends TestCase
         self::assertEquals(
             <<<MD
             # Generic.MySniff
+            
+            Description
+            
+            ## Docblock
             
             DocBlock
             
@@ -90,7 +97,7 @@ class MarkdownGeneratorTest extends TestCase
             ```
             
             MD,
-            $this->generator->fromSniff($doc)
+            $this->generator->createSniffDoc($doc)
         );
     }
 
