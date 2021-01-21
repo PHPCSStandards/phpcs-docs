@@ -7,6 +7,7 @@ use App\CodeRepository\CodeRepository;
 use App\Generator\Generator;
 use App\SniffFinder\SniffFinder;
 use App\Value\Folder;
+use Iterator;
 use Symfony\Component\Filesystem\Filesystem;
 
 class GenerateHandler
@@ -22,7 +23,10 @@ class GenerateHandler
         $this->sniffFinder = $sniffFinder;
     }
 
-    public function handle()
+    /**
+     * @return Iterator<string>
+     */
+    public function handle(): Iterator
     {
         $repoName = 'PHPCompatibility/PHPCompatibility';
         $repoPath = $this->codeRepository->downloadCode($repoName);
@@ -31,11 +35,13 @@ class GenerateHandler
         $standardPath = new Folder($repoPath . 'PHPCompatibility/');
 
         foreach ($this->sniffFinder->getSniffs($standardPath) as $sniff) {
+            $markdownPath = $this->sniffCodeToMarkdownPath($sniff->getCode());
             $filesystem->dumpFile(
             // TODO: perhaps we can move this logic to the the sniff class
-                $this->sniffCodeToMarkdownPath($sniff->getCode()),
+                $markdownPath,
                 $this->generator->createSniffDoc($sniff)
             );
+            yield "Created file: {$markdownPath}";
         }
     }
 

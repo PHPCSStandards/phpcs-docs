@@ -57,7 +57,8 @@ class FilesystemSniffFinderTest extends TestCase
     private function writeSniffPhp(): void
     {
         $content = '<?php
-        class SniffName {}
+        namespace Standard\Sniffs\Category;
+        class MySniff {}
         ';
         (new Filesystem())->dumpFile(self::PHP_SNIFF_PATH, $content);
     }

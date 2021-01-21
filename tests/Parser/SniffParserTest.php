@@ -4,10 +4,12 @@ declare(strict_types=1);
 namespace App\Tests\Parser;
 
 use App\Parser\SniffParser;
-use App\Value\Folder;
 use App\Value\Property;
 use App\Value\Url;
 use PHPUnit\Framework\TestCase;
+use Roave\BetterReflection\BetterReflection;
+use Roave\BetterReflection\SourceLocator\Ast\Locator;
+use Roave\BetterReflection\SourceLocator\Type\StringSourceLocator;
 use Symfony\Component\Filesystem\Filesystem;
 
 /** @covers \App\Parser\SniffParser */
@@ -15,14 +17,15 @@ class SniffParserTest extends TestCase
 {
     private const PHP_FILE_PATH = 'var/tests/src/Standard/Sniffs/Category/MySniff.php';
     private const XML_FILE_PATH = 'var/tests/src/Standard/Docs/Category/MyStandard.xml';
-    private const REPO_FOLDER = 'var/tests/';
 
     private SniffParser $parser;
+    private Locator $astLocator;
 
     /** @test */
     public function parse_WithValidPath_AddCode()
     {
         $content = '<?php
+        namespace Standard\Sniffs\Category;
         /**
          * Summary
          *
@@ -30,11 +33,11 @@ class SniffParserTest extends TestCase
          *
          * @since 1.0.0
          */
-        class SniffName {}
+        class MySniff {}
         ';
 
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
-        $doc = $this->parser->parse(self::PHP_FILE_PATH, new Folder(self::REPO_FOLDER));
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new StringSourceLocator($content, $this->astLocator));
         self::assertEquals(
             'Standard.Category.My',
             $doc->getCode()
@@ -45,6 +48,7 @@ class SniffParserTest extends TestCase
     public function parse_WithDocblockSummaryAndDescription_AddAllText()
     {
         $content = '<?php
+        namespace Standard\Sniffs\Category;
         /**
          * Summary
          *
@@ -52,11 +56,11 @@ class SniffParserTest extends TestCase
          *
          * @since 1.0.0
          */
-        class SniffName {}
+        class MySniff {}
         ';
 
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
-        $doc = $this->parser->parse(self::PHP_FILE_PATH, new Folder(self::REPO_FOLDER));
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new StringSourceLocator($content, $this->astLocator));
         self::assertEquals(
             "Summary\n\nDescription",
             $doc->getDocblock()
@@ -67,14 +71,15 @@ class SniffParserTest extends TestCase
     public function parse_WithDocblockSummary_AddSummary()
     {
         $content = '<?php
+        namespace Standard\Sniffs\Category;
         /**
          * Summary
          */
-        class SniffName {}
+        class MySniff {}
         ';
 
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
-        $doc = $this->parser->parse(self::PHP_FILE_PATH, new Folder(self::REPO_FOLDER));
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new StringSourceLocator($content, $this->astLocator));
         self::assertEquals(
             'Summary',
             $doc->getDocblock()
@@ -85,7 +90,8 @@ class SniffParserTest extends TestCase
     public function parse_WithProperties_AddPublicOnly()
     {
         $content = '<?php
-        class SniffName {
+        namespace Standard\Sniffs\Category;
+        class MySniff {
             /** @var bool */
             public $boolProperty = false;
             public string $stringProperty = "";
@@ -97,7 +103,7 @@ class SniffParserTest extends TestCase
         ';
 
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
-        $doc = $this->parser->parse(self::PHP_FILE_PATH, new Folder(self::REPO_FOLDER));
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new StringSourceLocator($content, $this->astLocator));
         self::assertEquals(
             [
                 new Property('boolProperty', 'bool', ''),
@@ -113,15 +119,16 @@ class SniffParserTest extends TestCase
     public function parse_WithMultipleLinks_AddLinks()
     {
         $content = '<?php
+        namespace Standard\Sniffs\Category;
         /**
          * @link http://link1.com
          * @link http://link2.com
          */
-        class SniffName {}
+        class MySniff {}
         ';
 
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
-        $doc = $this->parser->parse(self::PHP_FILE_PATH, new Folder(self::REPO_FOLDER));
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new StringSourceLocator($content, $this->astLocator));
         self::assertEquals(
             [
                 new Url('http://link1.com'),
@@ -135,6 +142,7 @@ class SniffParserTest extends TestCase
     public function parse_WithXmlDocs_AddProperties()
     {
         $content = '<?php
+        namespace Standard\Sniffs\Category;
         /**
          * Summary
          *
@@ -142,11 +150,11 @@ class SniffParserTest extends TestCase
          *
          * @since 1.0.0
          */
-        class SniffName {}
+        class MySniff {}
         ';
 
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
-        $doc = $this->parser->parse(self::PHP_FILE_PATH, new Folder(self::REPO_FOLDER));
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new StringSourceLocator($content, $this->astLocator));
         self::assertEquals(
             'Standard.Category.My',
             $doc->getCode()
@@ -157,11 +165,12 @@ class SniffParserTest extends TestCase
     public function parse_WithXmlLinks_MergeLinks()
     {
         $content = '<?php
+        namespace Standard\Sniffs\Category;
         /**
          * @link http://link1.com
          * @link http://link3.com
          */
-        class SniffName {}
+        class MySniff {}
         ';
 
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
@@ -175,7 +184,7 @@ class SniffParserTest extends TestCase
         XML;
         (new Filesystem())->dumpFile(self::XML_FILE_PATH, $content);
 
-        $doc = $this->parser->parse(self::PHP_FILE_PATH, new Folder(self::REPO_FOLDER));
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new StringSourceLocator($content, $this->astLocator));
         self::assertEquals(
             [
                 new Url('http://link1.com'),
@@ -189,5 +198,6 @@ class SniffParserTest extends TestCase
     protected function setUp(): void
     {
         $this->parser = new SniffParser();
+        $this->astLocator = (new BetterReflection())->astLocator();
     }
 }

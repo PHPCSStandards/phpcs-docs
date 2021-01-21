@@ -5,44 +5,36 @@ namespace App\Parser;
 
 use App\Parser\Exception\NotASniffPath;
 use App\Value\Diff;
-use App\Value\Folder;
 use App\Value\Property;
 use App\Value\Sniff;
 use App\Value\Url;
 use App\Value\Urls;
-use CallbackFilterIterator;
 use GlobIterator;
-use Iterator;
 use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\DocBlockFactory;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use ReflectionProperty;
 use Roave\BetterReflection\BetterReflection;
 use Roave\BetterReflection\Reflection as Roave;
 use Roave\BetterReflection\Reflection\ReflectionClass;
 use Roave\BetterReflection\Reflector\ClassReflector;
 use Roave\BetterReflection\SourceLocator\Type\AggregateSourceLocator;
-use Roave\BetterReflection\SourceLocator\Type\FileIteratorSourceLocator;
 use Roave\BetterReflection\SourceLocator\Type\SingleFileSourceLocator;
+use Roave\BetterReflection\SourceLocator\Type\SourceLocator;
 use SimpleXMLElement;
-use SplFileInfo;
 use function Stringy\create as s;
 
 class SniffParser
 {
-    public function parse(string $phpFilePath, Folder $repoFolder): Sniff
+    public function parse(string $phpFilePath, SourceLocator $projectSourceLocator): Sniff
     {
         $astLocator = (new BetterReflection())->astLocator();
-        $fileInfoIterator = $this->recursiveSearch($repoFolder);
-        $sourceLocators = [
-            new SingleFileSourceLocator($phpFilePath, $astLocator),
-            new FileIteratorSourceLocator($fileInfoIterator, $astLocator)
-        ];
         $reflector = new ClassReflector(
-            new AggregateSourceLocator($sourceLocators)
+            new AggregateSourceLocator([
+                new SingleFileSourceLocator($phpFilePath, $astLocator),
+                $projectSourceLocator
+            ])
         );
-        $classInfo = $reflector->getAllClasses()[0];
+        $classInfo = $reflector->reflect($this->getSniffClassName($phpFilePath));
 
         $xmlUrls = [];
         $description = '';
@@ -71,18 +63,6 @@ class SniffParser
             $diffs,
             $violations
         );
-    }
-
-    /**
-     * @return Iterator<SplFileInfo>
-     */
-    private function recursiveSearch(Folder $folder): Iterator
-    {
-        $dirs = new RecursiveDirectoryIterator($folder->getPath());
-        $files = new RecursiveIteratorIterator($dirs);
-        return new CallbackFilterIterator($files, function (SplFileInfo $fileInfo) {
-            return preg_match('/\.php$/', $fileInfo->getPathname()) && !preg_match('/\/Tests\//', $fileInfo->getPathname());
-        });
     }
 
     /**
@@ -123,13 +103,9 @@ class SniffParser
 
     private function getCode(string $filePath): string
     {
-        $part = '([^\/]*)';
-        preg_match("/$part\/Sniffs\/$part\/{$part}Sniff\.php/", $filePath, $matches);
-        if ($matches === []) {
-            throw NotASniffPath::fromPath($filePath);
-        }
+        $parts = $this->getSniffFileParts($filePath);
 
-        return sprintf('%s.%s.%s', $matches[1], $matches[2], $matches[3]);
+        return sprintf('%s.%s.%s', $parts[0], $parts[1], $parts[2]);
     }
 
     private function getDocBlock(string $docComment): string
@@ -215,5 +191,26 @@ class SniffParser
         }, $links);
 
         return new Urls(array_merge($urls, $xmlUrls));
+    }
+
+    private function getSniffClassName(string $phpFilePath): string
+    {
+        $parts = $this->getSniffFileParts($phpFilePath);
+
+        return "{$parts[0]}\\Sniffs\\{$parts[1]}\\{$parts[2]}Sniff";
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getSniffFileParts(string $filePath): array
+    {
+        $part = '([^\/]*)';
+        preg_match("/$part\/Sniffs\/$part\/{$part}Sniff\.php/", $filePath, $matches);
+        if ($matches === []) {
+            throw NotASniffPath::fromPath($filePath);
+        }
+
+        return array_slice($matches, 1, 3);
     }
 }
