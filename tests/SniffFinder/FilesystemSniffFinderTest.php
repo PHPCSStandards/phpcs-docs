@@ -10,6 +10,7 @@ use App\Value\Urls;
 use App\Value\Violation;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
+use Traversable;
 
 /** @covers \App\SniffFinder\FilesystemSniffFinder */
 class FilesystemSniffFinderTest extends TestCase
@@ -27,6 +28,12 @@ class FilesystemSniffFinderTest extends TestCase
         $this->writeSniffXml();
         $this->writeViolationXml();
 
+        /** @var Traversable $sniffs */
+        $sniffs = $this->finder->getSniffs(
+            new Folder(
+                'var/tests/src/Standard/'
+            )
+        );
         self::assertEquals(
             [
                 new Sniff(
@@ -46,11 +53,40 @@ class FilesystemSniffFinderTest extends TestCase
                     ]
                 )
             ],
-            iterator_to_array($this->finder->getSniffs(
+            iterator_to_array($sniffs)
+        );
+    }
+
+    /** @test */
+    public function getSniff()
+    {
+        $this->writeSniffPhp();
+        $this->writeSniffXml();
+        $this->writeViolationXml();
+
+        self::assertEquals(
+            new Sniff(
+                'Standard.Category.My',
+                '',
+                [],
+                new Urls([]),
+                'Description',
+                [],
+                [
+                    new Violation(
+                        'Standard.Category.My.ErrorCode',
+                        'Description',
+                        [],
+                        new Urls([])
+                    )
+                ]
+            ),
+            $this->finder->getSniff(
                 new Folder(
                     'var/tests/src/Standard/'
-                )
-            ))
+                ),
+                self::PHP_SNIFF_PATH
+            )
         );
     }
 
