@@ -160,10 +160,8 @@ class SniffParser
             return '';
         }
 
+        /** @var Var_ $varTag */
         $varTag = $varTags[0];
-        if (!$varTag instanceof Var_) {
-            return '';
-        }
 
         $description = $varTag->getDescription()->render();
         if ($description === '') {

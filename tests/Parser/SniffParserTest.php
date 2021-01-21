@@ -3,7 +3,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Parser;
 
+use App\Parser\Exception\NotASniffPath;
 use App\Parser\SniffParser;
+use App\Value\Diff;
 use App\Value\Property;
 use App\Value\Url;
 use PHPUnit\Framework\TestCase;
@@ -41,6 +43,24 @@ class SniffParserTest extends TestCase
         self::assertEquals(
             'Standard.Category.My',
             $doc->getCode()
+        );
+    }
+
+    /** @test */
+    public function parse_WithEmptyDocBlock_AddEmptyDescription()
+    {
+        $content = '<?php
+        namespace Standard\Sniffs\Category;
+        /**
+         */
+        class MySniff {}
+        ';
+
+        (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new StringSourceLocator($content, $this->astLocator));
+        self::assertEquals(
+            '',
+            $doc->getDocblock()
         );
     }
 
@@ -94,6 +114,7 @@ class SniffParserTest extends TestCase
         class MySniff {
             /** @var bool */
             public $boolProperty = false;
+            /** */
             public string $stringProperty = "";
             public $mixedProperty = false;
             /** @var string|null Description */
@@ -162,6 +183,36 @@ class SniffParserTest extends TestCase
     }
 
     /** @test */
+    public function parse_WithCodeComparison_AddDiff()
+    {
+        $content = '<?php
+        namespace Standard\Sniffs\Category;
+        class MySniff {}
+        ';
+
+        (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
+
+        $content = <<<XML
+        <documentation title="Title">
+            <standard>Description</standard>
+            <code_comparison>
+                <code>b();</code>
+                <code>a();</code>
+            </code_comparison>
+        </documentation>
+        XML;
+        (new Filesystem())->dumpFile(self::XML_FILE_PATH, $content);
+
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new StringSourceLocator($content, $this->astLocator));
+        self::assertEquals(
+            [
+                new Diff('a();', 'b();')
+            ],
+            $doc->getDiffs()
+        );
+    }
+
+    /** @test */
     public function parse_WithXmlLinks_MergeLinks()
     {
         $content = '<?php
@@ -193,6 +244,17 @@ class SniffParserTest extends TestCase
             ],
             $doc->getLinks()->getUrls()
         );
+    }
+
+    /** @test */
+    public function parse_WithInvalidPhpPath_ThrowException()
+    {
+        $content = '<?php';
+        $invalidPath = 'var/tests/src/INVALID_PATH/MySniff.php';
+        (new Filesystem())->dumpFile($invalidPath, $content);
+
+        $this->expectException(NotASniffPath::class);
+        $this->parser->parse($invalidPath, new StringSourceLocator($content, $this->astLocator));
     }
 
     protected function setUp(): void

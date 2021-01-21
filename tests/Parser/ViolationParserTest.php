@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Parser;
 
+use App\Parser\Exception\NotAViolationPath;
 use App\Parser\ViolationParser;
 use App\Value\Diff;
 use App\Value\Url;
@@ -92,6 +93,17 @@ class ViolationParserTest extends TestCase
             ],
             $this->parser->parse(self::XML_FILE_PATH)->getLinks()->getUrls()
         );
+    }
+
+    /** @test */
+    public function parse_WithInvalidViolationPath_ThrowException()
+    {
+        $content = '<documentation></documentation>';
+        $invalidPath = 'var/tests/src/INVALID_PATH/ErrorCode.xml';
+        (new Filesystem())->dumpFile($invalidPath, $content);
+
+        $this->expectException(NotAViolationPath::class);
+        $this->parser->parse($invalidPath);
     }
 
     protected function setUp(): void
