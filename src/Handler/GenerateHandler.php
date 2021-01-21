@@ -32,15 +32,13 @@ class GenerateHandler
         $filesystem = new Filesystem();
 
         $standardPath = new Folder($repoPath . 'PHPCompatibility/');
+        yield "Searching for sniffs...";
 
         if ($sniffPath !== null) {
             $sniffs = [$this->sniffFinder->getSniff($standardPath, $sniffPath)];
         } else {
             $sniffs = $this->sniffFinder->getSniffs($standardPath);
         }
-
-        $count = count($sniffs);
-        yield "Found {$count} sniff(s)";
 
         foreach ($sniffs as $sniff) {
             $markdownPath = $this->sniffCodeToMarkdownPath($sniff->getCode());

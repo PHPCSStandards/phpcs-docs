@@ -48,7 +48,7 @@ class GenerateHandlerTest extends TestCase
 
         self::assertEquals(
             [
-                'Found 2 sniff(s)',
+                'Searching for sniffs...',
                 'Created file: var/markdown/Standard/Category/First.md',
                 'Created file: var/markdown/Standard/Category/Second.md'
             ],
@@ -67,7 +67,7 @@ class GenerateHandlerTest extends TestCase
 
         self::assertEquals(
             [
-                'Found 1 sniff(s)',
+                'Searching for sniffs...',
                 'Created file: var/markdown/Standard/Category/First.md',
             ],
             iterator_to_array($messages)
