@@ -15,7 +15,7 @@ class FilesystemSniffFinder implements SniffFinder
         $parser = new SniffParser();
         $globSniffs = new GlobIterator($folder->getPath() . 'Sniffs/*/*Sniff.php');
         foreach ($globSniffs as $fileInfo) {
-            yield $parser->parse($fileInfo->getPathname());
+            yield $parser->parse($fileInfo->getPathname(), $folder);
         }
     }
 }

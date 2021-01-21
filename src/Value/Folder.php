@@ -17,13 +17,13 @@ class Folder
         $this->path = $path;
     }
 
-    public function getPath(): string
-    {
-        return $this->path;
-    }
-
     public function __toString()
     {
         return $this->getPath();
+    }
+
+    public function getPath(): string
+    {
+        return $this->path;
     }
 }

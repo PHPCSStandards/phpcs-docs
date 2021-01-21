@@ -11,19 +11,24 @@ class GithubCodeRepository implements CodeRepository
 {
     public function downloadCode(string $repoName): Folder
     {
-        $repoPath = new Folder(self::CODE_DOWNLOAD_PATH . '/' . $repoName . '/');
+        $repoPath = new Folder(self::CODE_DOWNLOAD_PATH . $repoName . '/');
 
-        $process = $this->cloneOrPull($repoPath, $repoName);
+        $this->runProcess($this->getCloneOrPullProcess($repoPath, $repoName));
+        $this->runProcess($this->getComposerInstallProcess($repoPath));
+
+        return $repoPath;
+    }
+
+    private function runProcess(Process $process): void
+    {
         $process->run();
 
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
-
-        return $repoPath;
     }
 
-    private function cloneOrPull(Folder $repoPath, string $repoName): Process
+    private function getCloneOrPullProcess(Folder $repoPath, string $repoName): Process
     {
         if (!is_dir((string)$repoPath)) {
             return new Process([
@@ -39,6 +44,16 @@ class GithubCodeRepository implements CodeRepository
             '-C',
             $repoPath,
             'pull'
+        ]);
+    }
+
+    private function getComposerInstallProcess(Folder $repoPath): Process
+    {
+        return new Process([
+            'composer',
+            'install',
+            '-d',
+            $repoPath
         ]);
     }
 }

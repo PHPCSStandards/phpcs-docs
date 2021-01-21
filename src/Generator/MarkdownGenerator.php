@@ -14,10 +14,6 @@ use function Stringy\create as s;
 
 class MarkdownGenerator implements Generator
 {
-    public function __construct()
-    {
-    }
-
     public function createSniffDoc(Sniff $sniff): string
     {
         return <<<MD

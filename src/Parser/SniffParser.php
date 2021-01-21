@@ -5,28 +5,43 @@ namespace App\Parser;
 
 use App\Parser\Exception\NotASniffPath;
 use App\Value\Diff;
+use App\Value\Folder;
 use App\Value\Property;
 use App\Value\Sniff;
 use App\Value\Url;
 use App\Value\Urls;
+use CallbackFilterIterator;
 use GlobIterator;
+use Iterator;
 use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\DocBlockFactory;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use ReflectionProperty;
 use Roave\BetterReflection\BetterReflection;
 use Roave\BetterReflection\Reflection as Roave;
 use Roave\BetterReflection\Reflection\ReflectionClass;
 use Roave\BetterReflection\Reflector\ClassReflector;
+use Roave\BetterReflection\SourceLocator\Type\AggregateSourceLocator;
+use Roave\BetterReflection\SourceLocator\Type\FileIteratorSourceLocator;
 use Roave\BetterReflection\SourceLocator\Type\SingleFileSourceLocator;
 use SimpleXMLElement;
+use SplFileInfo;
 use function Stringy\create as s;
 
 class SniffParser
 {
-    public function parse(string $phpFilePath): Sniff
+    public function parse(string $phpFilePath, Folder $repoFolder): Sniff
     {
         $astLocator = (new BetterReflection())->astLocator();
-        $reflector = new ClassReflector(new SingleFileSourceLocator($phpFilePath, $astLocator));
+        $fileInfoIterator = $this->recursiveSearch($repoFolder);
+        $sourceLocators = [
+            new SingleFileSourceLocator($phpFilePath, $astLocator),
+            new FileIteratorSourceLocator($fileInfoIterator, $astLocator)
+        ];
+        $reflector = new ClassReflector(
+            new AggregateSourceLocator($sourceLocators)
+        );
         $classInfo = $reflector->getAllClasses()[0];
 
         $xmlUrls = [];
@@ -56,6 +71,18 @@ class SniffParser
             $diffs,
             $violations
         );
+    }
+
+    /**
+     * @return Iterator<SplFileInfo>
+     */
+    private function recursiveSearch(Folder $folder): Iterator
+    {
+        $dirs = new RecursiveDirectoryIterator($folder->getPath());
+        $files = new RecursiveIteratorIterator($dirs);
+        return new CallbackFilterIterator($files, function (SplFileInfo $fileInfo) {
+            return preg_match('/\.php$/', $fileInfo->getPathname()) && !preg_match('/\/Tests\//', $fileInfo->getPathname());
+        });
     }
 
     /**

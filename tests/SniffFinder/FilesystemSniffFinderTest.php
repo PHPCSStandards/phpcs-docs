@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace App\Tests\SniffFinder;
 
 use App\SniffFinder\FilesystemSniffFinder;
-use App\Value\Sniff;
 use App\Value\Folder;
+use App\Value\Sniff;
 use App\Value\Urls;
 use App\Value\Violation;
 use PHPUnit\Framework\TestCase;
@@ -19,11 +19,6 @@ class FilesystemSniffFinderTest extends TestCase
     private const XML_VIOLATION_PATH = 'var/tests/src/Standard/Docs/Category/MyStandard/ErrorCode.xml';
 
     private FilesystemSniffFinder $finder;
-
-    protected function setUp(): void
-    {
-        $this->finder = new FilesystemSniffFinder();
-    }
 
     /** @test */
     public function getSniffs()
@@ -51,9 +46,11 @@ class FilesystemSniffFinderTest extends TestCase
                     ]
                 )
             ],
-            iterator_to_array($this->finder->getSniffs(new Folder(
-                'var/tests/src/Standard/'
-            )))
+            iterator_to_array($this->finder->getSniffs(
+                new Folder(
+                    'var/tests/src/Standard/'
+                )
+            ))
         );
     }
 
@@ -83,5 +80,10 @@ class FilesystemSniffFinderTest extends TestCase
         </documentation>
         XML;
         (new Filesystem())->dumpFile(self::XML_VIOLATION_PATH, $content);
+    }
+
+    protected function setUp(): void
+    {
+        $this->finder = new FilesystemSniffFinder();
     }
 }

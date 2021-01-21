@@ -34,29 +34,15 @@ class GenerateHandlerTest extends TestCase
      */
     private $sniffFinder;
 
-    protected function setUp(): void
-    {
-        $this->codeRepository = $this->createMock(CodeRepository::class);
-        $this->generator = $this->createMock(Generator::class);
-        $this->sniffFinder = $this->createMock(SniffFinder::class);
-
-        $this->handler = new GenerateHandler(
-            $this->codeRepository,
-            $this->generator,
-            $this->sniffFinder
-        );
-    }
-
     /** @test */
     public function handle()
     {
-        $this->codeRepository->method('downloadCode')->willReturn(new Folder('var/tests/src/'));
+        $this->codeRepository->method('downloadCode')->willReturn(new Folder('var/tests/'));
         $this->sniffFinder->method('getSniffs')->willReturn($this->createSniffs());
 
         $this->handler->handle();
 
         self::assertFileExists('var/markdown/Standard/Category/My.md');
-        self::assertFileExists('var/markdown/Standard/Category/My/ErrorCode.md');
     }
 
     private function createSniffs()
@@ -76,6 +62,19 @@ class GenerateHandlerTest extends TestCase
                     new Urls([])
                 )
             ]
+        );
+    }
+
+    protected function setUp(): void
+    {
+        $this->codeRepository = $this->createMock(CodeRepository::class);
+        $this->generator = $this->createMock(Generator::class);
+        $this->sniffFinder = $this->createMock(SniffFinder::class);
+
+        $this->handler = new GenerateHandler(
+            $this->codeRepository,
+            $this->generator,
+            $this->sniffFinder
         );
     }
 }

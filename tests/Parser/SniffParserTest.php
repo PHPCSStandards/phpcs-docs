@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Tests\Parser;
 
 use App\Parser\SniffParser;
+use App\Value\Folder;
 use App\Value\Property;
 use App\Value\Url;
 use PHPUnit\Framework\TestCase;
@@ -14,6 +15,7 @@ class SniffParserTest extends TestCase
 {
     private const PHP_FILE_PATH = 'var/tests/src/Standard/Sniffs/Category/MySniff.php';
     private const XML_FILE_PATH = 'var/tests/src/Standard/Docs/Category/MyStandard.xml';
+    private const REPO_FOLDER = 'var/tests/';
 
     private SniffParser $parser;
 
@@ -32,7 +34,7 @@ class SniffParserTest extends TestCase
         ';
 
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
-        $doc = $this->parser->parse(self::PHP_FILE_PATH);
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new Folder(self::REPO_FOLDER));
         self::assertEquals(
             'Standard.Category.My',
             $doc->getCode()
@@ -54,7 +56,7 @@ class SniffParserTest extends TestCase
         ';
 
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
-        $doc = $this->parser->parse(self::PHP_FILE_PATH);
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new Folder(self::REPO_FOLDER));
         self::assertEquals(
             "Summary\n\nDescription",
             $doc->getDocblock()
@@ -72,7 +74,7 @@ class SniffParserTest extends TestCase
         ';
 
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
-        $doc = $this->parser->parse(self::PHP_FILE_PATH);
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new Folder(self::REPO_FOLDER));
         self::assertEquals(
             'Summary',
             $doc->getDocblock()
@@ -95,7 +97,7 @@ class SniffParserTest extends TestCase
         ';
 
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
-        $doc = $this->parser->parse(self::PHP_FILE_PATH);
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new Folder(self::REPO_FOLDER));
         self::assertEquals(
             [
                 new Property('boolProperty', 'bool', ''),
@@ -119,7 +121,7 @@ class SniffParserTest extends TestCase
         ';
 
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
-        $doc = $this->parser->parse(self::PHP_FILE_PATH);
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new Folder(self::REPO_FOLDER));
         self::assertEquals(
             [
                 new Url('http://link1.com'),
@@ -144,7 +146,7 @@ class SniffParserTest extends TestCase
         ';
 
         (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
-        $doc = $this->parser->parse(self::PHP_FILE_PATH);
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new Folder(self::REPO_FOLDER));
         self::assertEquals(
             'Standard.Category.My',
             $doc->getCode()
@@ -173,7 +175,7 @@ class SniffParserTest extends TestCase
         XML;
         (new Filesystem())->dumpFile(self::XML_FILE_PATH, $content);
 
-        $doc = $this->parser->parse(self::PHP_FILE_PATH);
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new Folder(self::REPO_FOLDER));
         self::assertEquals(
             [
                 new Url('http://link1.com'),
