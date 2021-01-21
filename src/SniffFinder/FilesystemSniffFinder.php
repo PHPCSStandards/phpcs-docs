@@ -5,6 +5,7 @@ namespace App\SniffFinder;
 
 use App\Parser\SniffParser;
 use App\Value\Folder;
+use App\Value\Sniff;
 use CallbackFilterIterator;
 use GlobIterator;
 use Iterator;
@@ -14,11 +15,17 @@ use Roave\BetterReflection\BetterReflection;
 use Roave\BetterReflection\SourceLocator\Type\FileIteratorSourceLocator;
 use Roave\BetterReflection\SourceLocator\Type\SourceLocator;
 use SplFileInfo;
-use Traversable;
 
 class FilesystemSniffFinder implements SniffFinder
 {
-    public function getSniffs(Folder $folder): Traversable
+    public function getSniff(Folder $folder, string $sniffPath): Sniff
+    {
+        $parser = new SniffParser();
+        $projectSourceLocator = $this->createProjectSourceLocator($folder);
+        return $parser->parse($sniffPath, $projectSourceLocator);
+    }
+
+    public function getSniffs(Folder $folder): iterable
     {
         $parser = new SniffParser();
         $globSniffs = new GlobIterator($folder->getPath() . 'Sniffs/*/*Sniff.php');

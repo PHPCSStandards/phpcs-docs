@@ -5,12 +5,13 @@ namespace App\SniffFinder;
 
 use App\Value\Folder;
 use App\Value\Sniff;
-use Traversable;
 
 interface SniffFinder
 {
+    public function getSniff(Folder $folder, string $sniffPath): Sniff;
+
     /**
-     * @return Traversable<Sniff>
+     * @return iterable<Sniff>
      */
-    public function getSniffs(Folder $folder): Traversable;
+    public function getSniffs(Folder $folder): iterable;
 }

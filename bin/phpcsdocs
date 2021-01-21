@@ -1,0 +1,18 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+require __DIR__.'/../vendor/autoload.php';
+
+use App\Command\GenerateCommand;
+use DI\ContainerBuilder;
+use Symfony\Component\Console\Application;
+
+$application = new Application();
+
+$containerBuilder = new ContainerBuilder;
+$containerBuilder->addDefinitions(__DIR__ . '/../config/di.php');
+$container = $containerBuilder->build();
+
+$application->add($container->get(GenerateCommand::class));
+$application->run();

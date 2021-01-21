@@ -13,6 +13,7 @@ use App\Value\Urls;
 use App\Value\Violation;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 /** @covers \App\Handler\GenerateHandler */
 class GenerateHandlerTest extends TestCase
@@ -35,38 +36,58 @@ class GenerateHandlerTest extends TestCase
     private $sniffFinder;
 
     /** @test */
-    public function handle()
+    public function handle_WithoutArguments_CreatesFile()
     {
         $this->codeRepository->method('downloadCode')->willReturn(new Folder('var/tests/'));
-        $this->sniffFinder->method('getSniffs')->willReturn($this->createSniffs());
+        $sniffs = $this->createSniffs(['First', 'Second']);
+        $this->sniffFinder->method('getSniffs')->willReturn($sniffs);
+        $this->generator->method('createSniffDoc')->withConsecutive([$sniffs[0]], [$sniffs[1]]);
 
-        $this->handler->handle();
+        /** @var \Generator $messages */
+        $messages = $this->handler->handle();
 
-        self::assertFileExists('var/markdown/Standard/Category/My.md');
+        self::assertEquals(
+            [
+                'Found 2 sniff(s)',
+                'Created file: var/markdown/Standard/Category/First.md',
+                'Created file: var/markdown/Standard/Category/Second.md'
+            ],
+            iterator_to_array($messages)
+        );
     }
 
-    private function createSniffs()
+    /** @test */
+    public function handle_WithSniffPath_CreatesSingleFile()
     {
-        yield new Sniff(
-            'Standard.Category.My',
-            '',
-            [],
-            new Urls([]),
-            'Description',
-            [],
+        $this->codeRepository->method('downloadCode')->willReturn(new Folder('var/tests/'));
+        $this->sniffFinder->method('getSniff')->willReturn($this->createSniff('First'));
+
+        /** @var \Generator $messages */
+        $messages = $this->handler->handle('var/tests/Standard/Category/Sniffs/FirstSniff.php');
+
+        self::assertEquals(
             [
-                new Violation(
-                    'Standard.Category.My.ErrorCode',
-                    'Description',
-                    [],
-                    new Urls([])
-                )
-            ]
+                'Found 1 sniff(s)',
+                'Created file: var/markdown/Standard/Category/First.md',
+            ],
+            iterator_to_array($messages)
         );
+    }
+
+    /**
+     * @param string[] $names
+     */
+    private function createSniffs(array $names): iterable
+    {
+        return array_map(function (string $name) {
+            return $this->createSniff($name);
+        }, $names);
     }
 
     protected function setUp(): void
     {
+        (new Filesystem())->remove('var/markdown/Standard');
+
         $this->codeRepository = $this->createMock(CodeRepository::class);
         $this->generator = $this->createMock(Generator::class);
         $this->sniffFinder = $this->createMock(SniffFinder::class);
@@ -75,6 +96,26 @@ class GenerateHandlerTest extends TestCase
             $this->codeRepository,
             $this->generator,
             $this->sniffFinder
+        );
+    }
+
+    private function createSniff(string $name): Sniff
+    {
+        return new Sniff(
+            'Standard.Category.' . $name,
+            '',
+            [],
+            new Urls([]),
+            'Description',
+            [],
+            [
+                new Violation(
+                    'Standard.Category.' . $name . '.ErrorCode',
+                    'Description',
+                    [],
+                    new Urls([])
+                )
+            ]
         );
     }
 }
