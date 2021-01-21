@@ -18,10 +18,32 @@ class MarkdownGeneratorTest extends TestCase
     private MarkdownGenerator $generator;
 
     /** @test */
-    public function fromSniff()
+    public function fromSniff_WithMinimalData_WriteMinimalDetails()
     {
         $doc = new Sniff(
-            'Generic.MySniff',
+            'Standard.Category.My',
+            '',
+            [],
+            new Urls([]),
+            '',
+            [],
+            []
+        );
+
+        self::assertEquals(
+            <<<MD
+            # Standard.Category.My
+            
+            MD,
+            $this->generator->createSniffDoc($doc)
+        );
+    }
+
+    /** @test */
+    public function fromSniff_WithCompleteData_WriteAllDetails()
+    {
+        $doc = new Sniff(
+            'Standard.Category.My',
             'DocBlock',
             [
                 new Property('a', 'string', 'DescriptionA'),
@@ -35,7 +57,7 @@ class MarkdownGeneratorTest extends TestCase
             [],
             [
                 new Violation(
-                    'Generic.MySniff.ErrorCode',
+                    'Standard.Category.My.ErrorCode',
                     'Description',
                     [
                         new Diff('a();', 'b();'),
@@ -51,7 +73,7 @@ class MarkdownGeneratorTest extends TestCase
 
         self::assertEquals(
             <<<MD
-            # Generic.MySniff
+            # Standard.Category.My
             
             Description
             
@@ -73,7 +95,7 @@ class MarkdownGeneratorTest extends TestCase
             
             ```
             <details>
-            <summary>Generic.MySniff.ErrorCode</summary>
+            <summary>Standard.Category.My.ErrorCode</summary>
             Description
             
             ## Comparisons

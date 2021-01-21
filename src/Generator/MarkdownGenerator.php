@@ -16,7 +16,7 @@ class MarkdownGenerator implements Generator
 {
     public function createSniffDoc(Sniff $sniff): string
     {
-        return <<<MD
+        $sniffDoc = <<<MD
         # {$sniff->getCode()}
         
         {$this->getDescription($sniff)}
@@ -26,26 +26,35 @@ class MarkdownGenerator implements Generator
         {$this->getSeeAlso($sniff->getLinks())}
         {$this->getViolations($sniff->getViolations())}
         MD;
+
+        $sniffDoc = preg_replace('/\n{3,}/', "\n\n",$sniffDoc);
+        return preg_replace('/\n{2,}$/', "\n",$sniffDoc);
     }
 
     private function getDescription(Sniff $sniff): string
     {
+        $description = $sniff->getDescription();
+        if ($description === '') {
+            return '';
+        }
+
         return <<<MD
-        {$sniff->getDescription()}
+        {$description}
         
         MD;
     }
 
     private function getDocblock(Sniff $sniff): string
     {
-        if ($sniff->getDocblock() === '') {
+        $docblock = $sniff->getDocblock();
+        if ($docblock === '') {
             return '';
         }
 
         return <<<MD
         ## Docblock
         
-        {$sniff->getDocblock()}
+        {$docblock}
         MD;
     }
 
@@ -127,7 +136,7 @@ class MarkdownGenerator implements Generator
      */
     private function getSeeAlso(Urls $links): string
     {
-        if ($links === []) {
+        if ($links->getUrls() === []) {
             return '';
         }
 
