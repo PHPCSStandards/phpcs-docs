@@ -6,7 +6,7 @@ namespace App\Parser;
 use App\Parser\Exception\NotAViolationPath;
 use App\Value\Diff;
 use App\Value\Url;
-use App\Value\Urls;
+use App\Value\UrlList;
 use App\Value\Violation;
 use SimpleXMLElement;
 use function Stringy\create as s;
@@ -21,7 +21,7 @@ class ViolationParser
             $this->getErrorCode($xmlFilePath),
             $this->getDescription($xml),
             $this->getDiffs($xml),
-            $this->getLinks($xml)
+            $this->getUrls($xml)
         );
     }
 
@@ -57,15 +57,15 @@ class ViolationParser
         return $comparisons;
     }
 
-    private function getLinks(SimpleXMLElement $xml): Urls
+    private function getUrls(SimpleXMLElement $xml): UrlList
     {
-        $links = [];
+        $urls = [];
         foreach ($xml->link as $link) {
-            $links[] = new Url(
+            $urls[] = new Url(
                 (string)s((string)$link)->trim()
             );
         }
 
-        return new Urls($links);
+        return new UrlList($urls);
     }
 }

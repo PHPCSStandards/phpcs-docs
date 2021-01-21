@@ -16,7 +16,7 @@ class PropertyTest extends TestCase
     const DESCRIPTION = 'Description';
 
     /** @test */
-    public function constructor_WithBlankNAME_ThrowException()
+    public function constructor_WithBlankName_ThrowException()
     {
         $this->expectException(InvalidArgumentException::class);
         new Property('', self::TYPE, self::DESCRIPTION);
@@ -29,6 +29,11 @@ class PropertyTest extends TestCase
             self::NAME,
             $this->createValidProperty()->getName()
         );
+    }
+
+    private function createValidProperty(): Property
+    {
+        return new Property(self::NAME, self::TYPE, self::DESCRIPTION);
     }
 
     /** @test */
@@ -47,10 +52,5 @@ class PropertyTest extends TestCase
             self::DESCRIPTION,
             $this->createValidProperty()->getDescription()
         );
-    }
-
-    private function createValidProperty(): Property
-    {
-        return new Property(self::NAME, self::TYPE, self::DESCRIPTION);
     }
 }

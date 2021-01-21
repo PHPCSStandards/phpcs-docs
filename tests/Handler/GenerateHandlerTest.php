@@ -9,7 +9,7 @@ use App\Handler\GenerateHandler;
 use App\SniffFinder\SniffFinder;
 use App\Value\Folder;
 use App\Value\Sniff;
-use App\Value\Urls;
+use App\Value\UrlList;
 use App\Value\Violation;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -56,6 +56,36 @@ class GenerateHandlerTest extends TestCase
         );
     }
 
+    /**
+     * @param string[] $names
+     */
+    private function createSniffs(array $names): iterable
+    {
+        return array_map(function (string $name) {
+            return $this->createSniff($name);
+        }, $names);
+    }
+
+    private function createSniff(string $name): Sniff
+    {
+        return new Sniff(
+            'Standard.Category.' . $name,
+            '',
+            [],
+            new UrlList([]),
+            'Description',
+            [],
+            [
+                new Violation(
+                    'Standard.Category.' . $name . '.ErrorCode',
+                    'Description',
+                    [],
+                    new UrlList([])
+                )
+            ]
+        );
+    }
+
     /** @test */
     public function handle_WithSniffPath_CreatesSingleFile()
     {
@@ -74,16 +104,6 @@ class GenerateHandlerTest extends TestCase
         );
     }
 
-    /**
-     * @param string[] $names
-     */
-    private function createSniffs(array $names): iterable
-    {
-        return array_map(function (string $name) {
-            return $this->createSniff($name);
-        }, $names);
-    }
-
     protected function setUp(): void
     {
         (new Filesystem())->remove('var/markdown/Standard');
@@ -96,26 +116,6 @@ class GenerateHandlerTest extends TestCase
             $this->codeRepository,
             $this->generator,
             $this->sniffFinder
-        );
-    }
-
-    private function createSniff(string $name): Sniff
-    {
-        return new Sniff(
-            'Standard.Category.' . $name,
-            '',
-            [],
-            new Urls([]),
-            'Description',
-            [],
-            [
-                new Violation(
-                    'Standard.Category.' . $name . '.ErrorCode',
-                    'Description',
-                    [],
-                    new Urls([])
-                )
-            ]
         );
     }
 }

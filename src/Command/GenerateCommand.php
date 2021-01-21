@@ -34,7 +34,7 @@ class GenerateCommand extends Command
 
         foreach ($this->handler->handle($sniffPath) as $message) {
             $output->writeln($message);
-        };
+        }
 
         return Command::SUCCESS;
     }

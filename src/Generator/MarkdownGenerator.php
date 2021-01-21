@@ -7,7 +7,7 @@ use App\Value\Diff;
 use App\Value\Property;
 use App\Value\Sniff;
 use App\Value\Url;
-use App\Value\Urls;
+use App\Value\UrlList;
 use App\Value\Violation;
 use Stringy\Stringy;
 use function Stringy\create as s;
@@ -23,7 +23,7 @@ class MarkdownGenerator implements Generator
         {$this->getDocblock($sniff)}
         {$this->getComparisons($sniff->getDiffs())}
         {$this->getPublicProperties($sniff->getProperties())}
-        {$this->getSeeAlso($sniff->getLinks())}
+        {$this->getSeeAlso($sniff->getUrls())}
         {$this->getViolations($sniff->getViolations())}
         MD;
 
@@ -134,13 +134,13 @@ class MarkdownGenerator implements Generator
     /**
      * @return string
      */
-    private function getSeeAlso(Urls $links): string
+    private function getSeeAlso(UrlList $urls): string
     {
-        if ($links->getUrls() === []) {
+        if ($urls->toArray() === []) {
             return '';
         }
 
-        $linkLines = implode("\n", $this->getLinkLines($links));
+        $linkLines = implode("\n", $this->getLinkLines($urls));
 
         return <<<MD
         ## See Also
@@ -153,11 +153,11 @@ class MarkdownGenerator implements Generator
     /**
      * @return string[]
      */
-    private function getLinkLines(Urls $links): array
+    private function getLinkLines(UrlList $urls): array
     {
         return array_map(function (Url $url) {
             return "- [$url]($url)";
-        }, $links->getUrls());
+        }, $urls->toArray());
     }
 
     /**
@@ -205,7 +205,7 @@ class MarkdownGenerator implements Generator
         
         {$this->getComparisons($doc->getDiffs())}
         
-        {$this->getSeeAlso($doc->getLinks())}
+        {$this->getSeeAlso($doc->getUrls())}
         MD;
     }
 }

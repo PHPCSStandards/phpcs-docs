@@ -8,7 +8,7 @@ use App\Value\Diff;
 use App\Value\Property;
 use App\Value\Sniff;
 use App\Value\Url;
-use App\Value\Urls;
+use App\Value\UrlList;
 use App\Value\Violation;
 use PHPUnit\Framework\TestCase;
 
@@ -24,7 +24,7 @@ class MarkdownGeneratorTest extends TestCase
             'Standard.Category.My',
             '',
             [],
-            new Urls([]),
+            new UrlList([]),
             '',
             [],
             []
@@ -49,7 +49,7 @@ class MarkdownGeneratorTest extends TestCase
                 new Property('a', 'string', 'DescriptionA'),
                 new Property('b', 'int', 'DescriptionB')
             ],
-            new Urls([
+            new UrlList([
                 new Url('http://link1.com'),
                 new Url('http://link2.com')
             ]),
@@ -63,7 +63,7 @@ class MarkdownGeneratorTest extends TestCase
                         new Diff('a();', 'b();'),
                         new Diff('a();', 'b();')
                     ],
-                    new Urls([
+                    new UrlList([
                         new Url('http://link1.com'),
                         new Url('http://link2.com')
                     ])

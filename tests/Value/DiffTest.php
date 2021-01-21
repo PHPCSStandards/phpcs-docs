@@ -29,6 +29,14 @@ class DiffTest extends TestCase
         );
     }
 
+    /**
+     * @return Diff
+     */
+    private function createValidDiff(): Diff
+    {
+        return new Diff(self::BEFORE, self::AFTER);
+    }
+
     /** @test */
     public function getAfter()
     {
@@ -36,13 +44,5 @@ class DiffTest extends TestCase
             self::AFTER,
             $this->createValidDiff()->getAfter(),
         );
-    }
-
-    /**
-     * @return Diff
-     */
-    private function createValidDiff(): Diff
-    {
-        return new Diff(self::BEFORE, self::AFTER);
     }
 }

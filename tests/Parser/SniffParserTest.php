@@ -137,7 +137,7 @@ class SniffParserTest extends TestCase
     }
 
     /** @test */
-    public function parse_WithMultipleLinks_AddLinks()
+    public function parse_WithMultipleUrls_AddUrls()
     {
         $content = '<?php
         namespace Standard\Sniffs\Category;
@@ -155,7 +155,7 @@ class SniffParserTest extends TestCase
                 new Url('http://link1.com'),
                 new Url('http://link2.com')
             ],
-            $doc->getLinks()->getUrls()
+            $doc->getUrls()->toArray()
         );
     }
 
@@ -213,7 +213,7 @@ class SniffParserTest extends TestCase
     }
 
     /** @test */
-    public function parse_WithXmlLinks_MergeLinks()
+    public function parse_WithXmlUrls_MergeUrls()
     {
         $content = '<?php
         namespace Standard\Sniffs\Category;
@@ -242,7 +242,7 @@ class SniffParserTest extends TestCase
                 new Url('http://link3.com'),
                 new Url('http://link2.com')
             ],
-            $doc->getLinks()->getUrls()
+            $doc->getUrls()->toArray()
         );
     }
 

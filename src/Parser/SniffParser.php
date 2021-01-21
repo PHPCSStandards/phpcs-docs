@@ -8,7 +8,7 @@ use App\Value\Diff;
 use App\Value\Property;
 use App\Value\Sniff;
 use App\Value\Url;
-use App\Value\Urls;
+use App\Value\UrlList;
 use GlobIterator;
 use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\DocBlockFactory;
@@ -58,11 +58,32 @@ class SniffParser
             $this->getCode($phpFilePath),
             $this->getDocBlock($classInfo->getDocComment()),
             $this->getProperties($classInfo),
-            $this->getLinks($classInfo, $xmlUrls),
+            $this->getUrls($classInfo, $xmlUrls),
             $description,
             $diffs,
             $violations
         );
+    }
+
+    private function getSniffClassName(string $phpFilePath): string
+    {
+        $parts = $this->getSniffFileParts($phpFilePath);
+
+        return "{$parts[0]}\\Sniffs\\{$parts[1]}\\{$parts[2]}Sniff";
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getSniffFileParts(string $filePath): array
+    {
+        $part = '([^\/]*)';
+        preg_match("/$part\/Sniffs\/$part\/{$part}Sniff\.php/", $filePath, $matches);
+        if ($matches === []) {
+            throw NotASniffPath::fromPath($filePath);
+        }
+
+        return array_slice($matches, 1, 3);
     }
 
     /**
@@ -70,14 +91,14 @@ class SniffParser
      */
     private function getXmlUrls(SimpleXMLElement $xml): array
     {
-        $links = [];
+        $urls = [];
         foreach ($xml->link as $link) {
-            $links[] = new Url(
+            $urls[] = new Url(
                 (string)s((string)$link)->trim()
             );
         }
 
-        return $links;
+        return $urls;
     }
 
     private function getDescription(SimpleXMLElement $xml): string
@@ -174,10 +195,10 @@ class SniffParser
     /**
      * @param Url[] $xmlUrls
      */
-    private function getLinks(ReflectionClass $classInfo, array $xmlUrls): Urls
+    private function getUrls(ReflectionClass $classInfo, array $xmlUrls): UrlList
     {
         if ($classInfo->getDocComment() === '') {
-            return new Urls([]);
+            return new UrlList([]);
         }
 
         $links = DocBlockFactory::createInstance()
@@ -188,27 +209,6 @@ class SniffParser
             return new Url($url);
         }, $links);
 
-        return new Urls(array_merge($urls, $xmlUrls));
-    }
-
-    private function getSniffClassName(string $phpFilePath): string
-    {
-        $parts = $this->getSniffFileParts($phpFilePath);
-
-        return "{$parts[0]}\\Sniffs\\{$parts[1]}\\{$parts[2]}Sniff";
-    }
-
-    /**
-     * @return string[]
-     */
-    private function getSniffFileParts(string $filePath): array
-    {
-        $part = '([^\/]*)';
-        preg_match("/$part\/Sniffs\/$part\/{$part}Sniff\.php/", $filePath, $matches);
-        if ($matches === []) {
-            throw NotASniffPath::fromPath($filePath);
-        }
-
-        return array_slice($matches, 1, 3);
+        return new UrlList(array_merge($urls, $xmlUrls));
     }
 }

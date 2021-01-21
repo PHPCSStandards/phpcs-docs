@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Value;
 
+use Assert\Assert;
+
 class Sniff
 {
     private string $code;
@@ -11,7 +13,7 @@ class Sniff
      * @var Property[]
      */
     private array $properties;
-    private Urls $links;
+    private UrlList $urls;
     private string $description;
     /**
      * @var Diff[]
@@ -31,16 +33,28 @@ class Sniff
         string $code,
         string $docblock,
         array $properties,
-        Urls $links,
+        UrlList $urls,
         string $description,
         array $diffs,
         array $violations
     )
     {
+        Assert::that($code)
+            ->notBlank();
+
+        Assert::thatAll($properties)
+            ->isInstanceOf(Property::class);
+
+        Assert::thatAll($diffs)
+            ->isInstanceOf(Diff::class);
+
+        Assert::thatAll($violations)
+            ->isInstanceOf(Violation::class);
+
         $this->code = $code;
         $this->docblock = $docblock;
         $this->properties = array_values($properties);
-        $this->links = $links;
+        $this->urls = $urls;
         $this->description = $description;
         $this->diffs = $diffs;
         $this->violations = $violations;
@@ -64,9 +78,9 @@ class Sniff
         return $this->properties;
     }
 
-    public function getLinks(): Urls
+    public function getUrls(): UrlList
     {
-        return $this->links;
+        return $this->urls;
     }
 
     public function getDescription(): string

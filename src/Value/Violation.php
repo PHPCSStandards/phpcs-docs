@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Value;
 
+use Assert\Assert;
+
 class Violation
 {
     private string $code;
@@ -11,17 +13,23 @@ class Violation
      * @var Diff[]
      */
     private array $diffs;
-    private Urls $links;
+    private UrlList $urls;
 
     /**
      * @param Diff[] $diffs
      */
-    public function __construct(string $code, string $description, array $diffs, Urls $links)
+    public function __construct(string $code, string $description, array $diffs, UrlList $urls)
     {
+        Assert::that($code)
+            ->notBlank();
+
+        Assert::thatAll($diffs)
+            ->isInstanceOf(Diff::class);
+
         $this->code = $code;
         $this->description = $description;
         $this->diffs = $diffs;
-        $this->links = $links;
+        $this->urls = $urls;
     }
 
     public function getCode(): string
@@ -42,8 +50,8 @@ class Violation
         return $this->diffs;
     }
 
-    public function getLinks(): Urls
+    public function getUrls(): UrlList
     {
-        return $this->links;
+        return $this->urls;
     }
 }

@@ -7,7 +7,7 @@ use App\Parser\Exception\NotAViolationPath;
 use App\Parser\ViolationParser;
 use App\Value\Diff;
 use App\Value\Url;
-use App\Value\Urls;
+use App\Value\UrlList;
 use App\Value\Violation;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -33,7 +33,7 @@ class ViolationParserTest extends TestCase
                 'Standard.Category.My.ErrorCode',
                 'Description',
                 [],
-                new Urls([])
+                new UrlList([])
             ),
             $this->parser->parse(self::XML_FILE_PATH)
         );
@@ -76,7 +76,7 @@ class ViolationParserTest extends TestCase
     }
 
     /** @test */
-    public function parse_WithLinks_AddLinks()
+    public function parse_WithLinks_AddUrls()
     {
         $content = <<<XML
         <documentation title="Title">
@@ -91,7 +91,7 @@ class ViolationParserTest extends TestCase
                 new Url('http://link1.com'),
                 new Url('http://link2.com')
             ],
-            $this->parser->parse(self::XML_FILE_PATH)->getLinks()->getUrls()
+            $this->parser->parse(self::XML_FILE_PATH)->getUrls()->toArray()
         );
     }
 

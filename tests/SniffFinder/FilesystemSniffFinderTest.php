@@ -6,7 +6,7 @@ namespace App\Tests\SniffFinder;
 use App\SniffFinder\FilesystemSniffFinder;
 use App\Value\Folder;
 use App\Value\Sniff;
-use App\Value\Urls;
+use App\Value\UrlList;
 use App\Value\Violation;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -40,7 +40,7 @@ class FilesystemSniffFinderTest extends TestCase
                     'Standard.Category.My',
                     '',
                     [],
-                    new Urls([]),
+                    new UrlList([]),
                     'Description',
                     [],
                     [
@@ -48,45 +48,12 @@ class FilesystemSniffFinderTest extends TestCase
                             'Standard.Category.My.ErrorCode',
                             'Description',
                             [],
-                            new Urls([])
+                            new UrlList([])
                         )
                     ]
                 )
             ],
             iterator_to_array($sniffs)
-        );
-    }
-
-    /** @test */
-    public function getSniff()
-    {
-        $this->writeSniffPhp();
-        $this->writeSniffXml();
-        $this->writeViolationXml();
-
-        self::assertEquals(
-            new Sniff(
-                'Standard.Category.My',
-                '',
-                [],
-                new Urls([]),
-                'Description',
-                [],
-                [
-                    new Violation(
-                        'Standard.Category.My.ErrorCode',
-                        'Description',
-                        [],
-                        new Urls([])
-                    )
-                ]
-            ),
-            $this->finder->getSniff(
-                new Folder(
-                    'var/tests/src/Standard/'
-                ),
-                self::PHP_SNIFF_PATH
-            )
         );
     }
 
@@ -117,6 +84,39 @@ class FilesystemSniffFinderTest extends TestCase
         </documentation>
         XML;
         (new Filesystem())->dumpFile(self::XML_VIOLATION_PATH, $content);
+    }
+
+    /** @test */
+    public function getSniff()
+    {
+        $this->writeSniffPhp();
+        $this->writeSniffXml();
+        $this->writeViolationXml();
+
+        self::assertEquals(
+            new Sniff(
+                'Standard.Category.My',
+                '',
+                [],
+                new UrlList([]),
+                'Description',
+                [],
+                [
+                    new Violation(
+                        'Standard.Category.My.ErrorCode',
+                        'Description',
+                        [],
+                        new UrlList([])
+                    )
+                ]
+            ),
+            $this->finder->getSniff(
+                new Folder(
+                    'var/tests/src/Standard/'
+                ),
+                self::PHP_SNIFF_PATH
+            )
+        );
     }
 
     protected function setUp(): void

@@ -6,7 +6,7 @@ namespace App\Value;
 /**
  * Collection of unique URLs.
  */
-class Urls
+class UrlList
 {
     /**
      * @var Url[]
@@ -32,7 +32,7 @@ class Urls
     /**
      * @return Url[]
      */
-    public function getUrls(): array
+    public function toArray(): array
     {
         return $this->urls;
     }
