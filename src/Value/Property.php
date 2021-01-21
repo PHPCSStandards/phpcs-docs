@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Value;
 
+use Assert\Assert;
+
 class Property
 {
     private string $name;
@@ -11,6 +13,9 @@ class Property
 
     public function __construct(string $name, string $type, string $description)
     {
+        Assert::that($name)
+            ->notBlank();
+
         $this->name = $name;
         $this->type = $type;
         $this->description = $description;
