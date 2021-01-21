@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Value;
 
+use Assert\Assert;
+
 class Diff
 {
     private string $before;
@@ -10,6 +12,9 @@ class Diff
 
     public function __construct(string $before, string $after)
     {
+        Assert::thatAll([$before, $after])
+            ->notBlank();
+
         $this->before = $before;
         $this->after = $after;
     }
