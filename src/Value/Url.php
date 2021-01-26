@@ -5,7 +5,7 @@ namespace App\Value;
 
 use Assert\Assert;
 
-class Url
+final class Url
 {
     private string $url;
 

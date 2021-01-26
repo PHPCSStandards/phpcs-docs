@@ -5,7 +5,7 @@ namespace App\Value;
 
 use Assert\Assert;
 
-class Diff
+final class Diff
 {
     private string $before;
     private string $after;

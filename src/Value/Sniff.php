@@ -5,7 +5,7 @@ namespace App\Value;
 
 use Assert\Assert;
 
-class Sniff
+final class Sniff
 {
     private string $code;
     private string $docblock;

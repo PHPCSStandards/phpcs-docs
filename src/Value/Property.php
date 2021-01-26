@@ -5,7 +5,7 @@ namespace App\Value;
 
 use Assert\Assert;
 
-class Property
+final class Property
 {
     private string $name;
     private string $type;
