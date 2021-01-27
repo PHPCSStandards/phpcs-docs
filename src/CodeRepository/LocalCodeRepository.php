@@ -8,16 +8,13 @@ use App\Value\Folder;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-class GitCodeRepository implements CodeRepository
+class LocalCodeRepository implements CodeRepository
 {
-    public function downloadCode(Source $source): Folder
+    public function getFolder(Source $source): Folder
     {
-        $localPath = new Folder(self::CODE_DOWNLOAD_PATH . $source->getLocalFolder() . '/');
+        $this->runProcess($this->getComposerInstallProcess($source->getLocalFolder()));
 
-        $this->runProcess($this->getCloneOrPullProcess($localPath, $source->getPath()));
-        $this->runProcess($this->getComposerInstallProcess($localPath));
-
-        return $localPath;
+        return $source->getLocalFolder();
     }
 
     private function runProcess(Process $process): void
@@ -27,25 +24,6 @@ class GitCodeRepository implements CodeRepository
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
-    }
-
-    private function getCloneOrPullProcess(Folder $localPath, string $sourcePath): Process
-    {
-        if (!is_dir((string)$localPath)) {
-            return new Process([
-                'git',
-                'clone',
-                $sourcePath,
-                (string)$localPath
-            ]);
-        }
-
-        return new Process([
-            'git',
-            '-C',
-            (string)$localPath,
-            'pull'
-        ]);
     }
 
     private function getComposerInstallProcess(Folder $repoPath): Process
