@@ -32,7 +32,7 @@ class XmlConfigurationRepositoryTest extends TestCase
         $this->expectException(RuntimeException::class);
 
         $xmlContent =
-        '<?xml version="1.0" encoding="UTF-8"?>
+            '<?xml version="1.0" encoding="UTF-8"?>
         <generator>
         </generator>';
 
@@ -45,7 +45,7 @@ class XmlConfigurationRepositoryTest extends TestCase
     public function getConfig_WithBothFiles_PickNonDist()
     {
         $xmlContent =
-        '<?xml version="1.0" encoding="UTF-8"?>
+            '<?xml version="1.0" encoding="UTF-8"?>
         <generator format="markdown">
             <source path="../">
                 <standard path="Xml" />
@@ -55,7 +55,7 @@ class XmlConfigurationRepositoryTest extends TestCase
         (new Filesystem)->dumpFile(self::XML_FILE_PATH, $xmlContent);
 
         $xmlDistContent =
-        '<generator format="markdown">
+            '<generator format="markdown">
             <source path="../">
                 <standard path="Dist" />
             </source>
@@ -74,7 +74,7 @@ class XmlConfigurationRepositoryTest extends TestCase
     public function getConfig_WithValidFile_ReturnConfiguration()
     {
         $xmlContent =
-        '<?xml version="1.0" encoding="UTF-8"?>
+            '<?xml version="1.0" encoding="UTF-8"?>
         <generator format="markdown">
             <source path="path/to/code">
                 <standard path="Standard" />

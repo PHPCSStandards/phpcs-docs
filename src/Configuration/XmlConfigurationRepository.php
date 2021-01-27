@@ -22,7 +22,7 @@ class XmlConfigurationRepository implements ConfigurationRepository
 
     public function getConfig(): Configuration
     {
-        $paths = [$this->root . 'generator.xml', $this->root . '/generator.xml.dist'];
+        $paths = [$this->root . 'generator.xml', $this->root . 'generator.xml.dist'];
         foreach ($paths as $path) {
             if (file_exists($path)) {
                 return $this->parse($path);
@@ -39,7 +39,7 @@ class XmlConfigurationRepository implements ConfigurationRepository
         $dom = new DOMDocument;
         $dom->load($path);
 
-        set_error_handler(function(int $number, string $error) use ($path) {
+        set_error_handler(function (int $number, string $error) use ($path) {
             throw new RuntimeException(
                 sprintf("The configuration file %s is invalid.\n%s", $path, $error)
             );

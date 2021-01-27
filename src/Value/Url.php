@@ -12,7 +12,7 @@ final class Url
     public function __construct(string $url)
     {
         Assert::that($url)
-            ->url();
+            ->url('Not a valid URL: ' . $url);
 
         $this->url = $url;
     }

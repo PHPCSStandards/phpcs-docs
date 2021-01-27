@@ -25,14 +25,11 @@ class FilesystemSniffFinder implements SniffFinder
         return $parser->parse($sniffPath, $projectSourceLocator);
     }
 
-    public function getSniffs(Folder $folder): iterable
+    private function createProjectSourceLocator(Folder $folder): SourceLocator
     {
-        $parser = new SniffParser();
-        $globSniffs = new GlobIterator($folder->getPath() . 'Sniffs/*/*Sniff.php');
-        $projectSourceLocator = $this->createProjectSourceLocator($folder);
-        foreach ($globSniffs as $fileInfo) {
-            yield $parser->parse($fileInfo->getPathname(), $projectSourceLocator);
-        }
+        $astLocator = (new BetterReflection())->astLocator();
+        $fileInfoIterator = $this->recursiveSearch($folder);
+        return new FileIteratorSourceLocator($fileInfoIterator, $astLocator);
     }
 
     /**
@@ -47,10 +44,13 @@ class FilesystemSniffFinder implements SniffFinder
         });
     }
 
-    private function createProjectSourceLocator(Folder $folder): SourceLocator
+    public function getSniffs(Folder $folder): iterable
     {
-        $astLocator = (new BetterReflection())->astLocator();
-        $fileInfoIterator = $this->recursiveSearch($folder);
-        return new FileIteratorSourceLocator($fileInfoIterator, $astLocator);
+        $parser = new SniffParser();
+        $globSniffs = new GlobIterator($folder->getPath() . 'Sniffs/*/*Sniff.php');
+        $projectSourceLocator = $this->createProjectSourceLocator($folder);
+        foreach ($globSniffs as $fileInfo) {
+            yield $parser->parse($fileInfo->getPathname(), $projectSourceLocator);
+        }
     }
 }

@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <generator format="markdown">
-    <sources>
-        <source path="git@github.com:PHPCompatibility/PHPCompatibility.git">
-            <standards>
-                <standard path="PHPCompatibility" />
-            </standards>
-        </source>
-    </sources>
+    <source path="git@github.com:PHPCompatibility/PHPCompatibility.git">
+        <standard path="PHPCompatibility" />
+    </source>
 </generator>

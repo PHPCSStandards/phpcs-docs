@@ -27,8 +27,8 @@ class MarkdownGenerator implements Generator
         {$this->getViolations($sniff->getViolations())}
         MD;
 
-        $sniffDoc = preg_replace('/\n{3,}/', "\n\n",$sniffDoc);
-        return preg_replace('/\n{2,}$/', "\n",$sniffDoc);
+        $sniffDoc = preg_replace('/\n{3,}/', "\n\n", $sniffDoc);
+        return preg_replace('/\n{2,}$/', "\n", $sniffDoc);
     }
 
     private function getDescription(Sniff $sniff): string

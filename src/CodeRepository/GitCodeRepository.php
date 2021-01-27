@@ -8,16 +8,14 @@ use App\Value\Folder;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-class GithubCodeRepository implements CodeRepository
+class GitCodeRepository implements CodeRepository
 {
-    public function downloadCode(Source $source): Folder
+    public function getFolder(Source $source): Folder
     {
-        $localPath = new Folder(self::CODE_DOWNLOAD_PATH . $source->getLocalFolder() . '/');
+        $this->runProcess($this->getCloneOrPullProcess($source->getLocalFolder(), $source->getPath()));
+        $this->runProcess($this->getComposerInstallProcess($source->getLocalFolder()));
 
-        $this->runProcess($this->getCloneOrPullProcess($localPath, $source->getPath()));
-        $this->runProcess($this->getComposerInstallProcess($localPath));
-
-        return $localPath;
+        return $source->getLocalFolder();
     }
 
     private function runProcess(Process $process): void
