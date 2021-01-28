@@ -8,10 +8,10 @@ use App\Value\Sniff;
 
 interface SniffFinder
 {
-    public function getSniff(Folder $folder, string $sniffPath): Sniff;
+    public function getSniff(Folder $standardFolder, Folder $sourceFolder, string $sniffPath): Sniff;
 
     /**
      * @return iterable<Sniff>
      */
-    public function getSniffs(Folder $folder): iterable;
+    public function getSniffs(Folder $standardFolder, Folder $sourceFolder): iterable;
 }

@@ -3,10 +3,10 @@
     <xs:element name="generator">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="source">
+                <xs:element name="source" maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="standard">
+                            <xs:element name="standard" maxOccurs="unbounded">
                                 <xs:complexType>
                                     <xs:attribute name="path" type="xs:string" use="required"/>
                                 </xs:complexType>

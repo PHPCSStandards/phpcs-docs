@@ -12,7 +12,7 @@ use Symfony\Component\Process\Exception\RuntimeException;
 /** @covers \App\CodeRepository\GitCodeRepository */
 class GitCodeRepositoryTest extends TestCase
 {
-    const LOCAL_GIT_PATH = 'var/tests/repo/Standard.git';
+    private const LOCAL_GIT_PATH = 'var/tests/repo/Standard.git';
     private GitCodeRepository $codeRepo;
 
     /** @test */

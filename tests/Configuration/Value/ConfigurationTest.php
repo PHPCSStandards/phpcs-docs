@@ -16,21 +16,19 @@ class ConfigurationTest extends TestCase
      */
     private static array $SOURCES;
 
+    public static function setUpBeforeClass(): void
+    {
+        self::$SOURCES = [
+            new Source('path/to/source', [])
+        ];
+    }
+
     /** @test */
     public function getSources()
     {
         self::assertEquals(
             self::$SOURCES,
             $this->createValidVO()->getSources(),
-        );
-    }
-
-    /** @test */
-    public function getFormat()
-    {
-        self::assertEquals(
-            self::FORMAT,
-            $this->createValidVO()->getFormat(),
         );
     }
 
@@ -42,10 +40,12 @@ class ConfigurationTest extends TestCase
         );
     }
 
-    public static function setUpBeforeClass(): void
+    /** @test */
+    public function getFormat()
     {
-        self::$SOURCES = [
-            new Source('path/to/source', [])
-        ];
+        self::assertEquals(
+            self::FORMAT,
+            $this->createValidVO()->getFormat(),
+        );
     }
 }

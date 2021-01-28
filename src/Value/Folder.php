@@ -17,7 +17,7 @@ final class Folder
         $this->path = $path;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getPath();
     }

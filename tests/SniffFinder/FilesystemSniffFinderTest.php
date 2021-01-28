@@ -32,6 +32,9 @@ class FilesystemSniffFinderTest extends TestCase
         $sniffs = $this->finder->getSniffs(
             new Folder(
                 'var/tests/src/Standard/'
+            ),
+            new Folder(
+                'var/tests/'
             )
         );
         self::assertEquals(
@@ -113,6 +116,9 @@ class FilesystemSniffFinderTest extends TestCase
             $this->finder->getSniff(
                 new Folder(
                     'var/tests/src/Standard/'
+                ),
+                new Folder(
+                    'var/tests/'
                 ),
                 self::PHP_SNIFF_PATH
             )

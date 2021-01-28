@@ -18,10 +18,10 @@ use SplFileInfo;
 
 class FilesystemSniffFinder implements SniffFinder
 {
-    public function getSniff(Folder $folder, string $sniffPath): Sniff
+    public function getSniff(Folder $standardFolder, Folder $sourceFolder, string $sniffPath): Sniff
     {
         $parser = new SniffParser();
-        $projectSourceLocator = $this->createProjectSourceLocator($folder);
+        $projectSourceLocator = $this->createProjectSourceLocator($sourceFolder);
         return $parser->parse($sniffPath, $projectSourceLocator);
     }
 
@@ -44,11 +44,11 @@ class FilesystemSniffFinder implements SniffFinder
         });
     }
 
-    public function getSniffs(Folder $folder): iterable
+    public function getSniffs(Folder $standardFolder, Folder $sourceFolder): iterable
     {
         $parser = new SniffParser();
-        $globSniffs = new GlobIterator($folder->getPath() . 'Sniffs/*/*Sniff.php');
-        $projectSourceLocator = $this->createProjectSourceLocator($folder);
+        $globSniffs = new GlobIterator($standardFolder->getPath() . 'Sniffs/*/*Sniff.php');
+        $projectSourceLocator = $this->createProjectSourceLocator($sourceFolder);
         foreach ($globSniffs as $fileInfo) {
             yield $parser->parse($fileInfo->getPathname(), $projectSourceLocator);
         }

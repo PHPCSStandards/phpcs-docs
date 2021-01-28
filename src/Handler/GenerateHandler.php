@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Handler;
 
-use App\CodeRepository\CodeRepository;
 use App\CodeRepository\CodeRepositoryFactory;
 use App\Configuration\ConfigurationRepository;
 use App\Generator\Generator;
@@ -41,15 +40,15 @@ class GenerateHandler
 
         foreach ($config->getSources() as $source) {
             $codeRepository = $this->codeRepositoryFactory->fromType($source->getType());
-            $repoPath = $codeRepository->getFolder($source);
+            $sourceFolder = $codeRepository->getFolder($source);
             foreach ($source->getStandards() as $standard) {
-                $standardFolder = new Folder($repoPath . $standard->getPath() . '/');
+                $standardFolder = new Folder($sourceFolder . $standard->getPath() . '/');
                 yield "Searching for sniffs in {$standardFolder}...";
 
                 if ($sniffPath !== null) {
-                    $sniffs = [$this->sniffFinder->getSniff($standardFolder, $sniffPath)];
+                    $sniffs = [$this->sniffFinder->getSniff($standardFolder, $sourceFolder, $sniffPath)];
                 } else {
-                    $sniffs = $this->sniffFinder->getSniffs($standardFolder);
+                    $sniffs = $this->sniffFinder->getSniffs($standardFolder, $sourceFolder);
                 }
 
                 foreach ($sniffs as $sniff) {

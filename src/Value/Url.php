@@ -17,7 +17,7 @@ final class Url
         $this->url = $url;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getUrl();
     }
