@@ -3,6 +3,8 @@ on: push
 jobs:
   phpunit:
     runs-on: ubuntu-latest
+    env:
+      IS_CI_TEST: true
     steps:
       - uses: actions/checkout@v1
       - uses: shivammathur/setup-php@v2

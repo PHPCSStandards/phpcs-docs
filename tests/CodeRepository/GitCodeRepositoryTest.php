@@ -39,6 +39,10 @@ class GitCodeRepositoryTest extends TestCase
         $gitPath = self::LOCAL_GIT_PATH;
         $fs->mkdir($gitPath);
         $fs->dumpFile($gitPath . '/composer.json', '{}');
+        if (getenv('IS_CI_TEST')) {
+            `git config --global user.email "you@example.com"`;
+            `git config --global user.name "Your Name"`;
+        }
         `cd {$gitPath} && git init && git add composer.json && git commit -m "Init"`;
     }
 
