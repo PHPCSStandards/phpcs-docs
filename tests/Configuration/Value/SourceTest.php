@@ -37,6 +37,15 @@ class SourceTest extends TestCase
     }
 
     /** @test */
+    public function getType_WithGit_ReturnGit()
+    {
+        self::assertEquals(
+            Source::TYPE_GIT,
+            (new Source('path/to/repo.git', []))->getType()
+        );
+    }
+
+    /** @test */
     public function getPath()
     {
         self::assertEquals(
