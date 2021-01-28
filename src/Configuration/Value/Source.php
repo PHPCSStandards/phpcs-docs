@@ -60,4 +60,9 @@ final class Source
     {
         return $this->standards;
     }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
 }

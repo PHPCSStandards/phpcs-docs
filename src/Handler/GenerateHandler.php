@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Handler;
 
 use App\CodeRepository\CodeRepository;
+use App\CodeRepository\CodeRepositoryFactory;
 use App\Configuration\ConfigurationRepository;
 use App\Generator\Generator;
 use App\SniffFinder\SniffFinder;
@@ -12,19 +13,19 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class GenerateHandler
 {
-    private CodeRepository $codeRepository;
+    private CodeRepositoryFactory $codeRepositoryFactory;
     private Generator $generator;
     private SniffFinder $sniffFinder;
     private ConfigurationRepository $configRepo;
 
     public function __construct(
-        CodeRepository $codeRepository,
+        CodeRepositoryFactory $codeRepositoryFactory,
         Generator $generator,
         SniffFinder $sniffFinder,
         ConfigurationRepository $configRepo
     )
     {
-        $this->codeRepository = $codeRepository;
+        $this->codeRepositoryFactory = $codeRepositoryFactory;
         $this->generator = $generator;
         $this->sniffFinder = $sniffFinder;
         $this->configRepo = $configRepo;
@@ -39,7 +40,8 @@ class GenerateHandler
         $filesystem = new Filesystem();
 
         foreach ($config->getSources() as $source) {
-            $repoPath = $this->codeRepository->getFolder($source);
+            $codeRepository = $this->codeRepositoryFactory->fromType($source->getType());
+            $repoPath = $codeRepository->getFolder($source);
             foreach ($source->getStandards() as $standard) {
                 $standardFolder = new Folder($repoPath . $standard->getPath() . '/');
                 yield "Searching for sniffs in {$standardFolder}...";

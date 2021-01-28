@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 class CodeRepositoryFactory
 {
-    public static function fromType(string $type): CodeRepository
+    public function fromType(string $type): CodeRepository
     {
         switch ($type) {
             case Source::TYPE_GIT:
