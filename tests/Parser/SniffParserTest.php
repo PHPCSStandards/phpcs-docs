@@ -19,6 +19,7 @@ class SniffParserTest extends TestCase
 {
     private const PHP_FILE_PATH = 'var/tests/src/Standard/Sniffs/Category/MySniff.php';
     private const XML_FILE_PATH = 'var/tests/src/Standard/Docs/Category/MyStandard.xml';
+    private const PHP_FILE_PATH_MIXED_SLASHES = 'var\tests\src\Standard/Sniffs/Category\MySniff.php';
 
     private SniffParser $parser;
     private Locator $astLocator;
@@ -243,6 +244,53 @@ class SniffParserTest extends TestCase
                 new Url('http://link2.com')
             ],
             $doc->getUrls()->toArray()
+        );
+    }
+
+    /** @test */
+    public function parse_WithWindowsSlashesInPhpPath()
+    {
+        $content = '<?php
+        namespace Standard\Sniffs\Category;
+        /**
+         * Summary
+         *
+         * Description
+         *
+         * @since 1.0.0
+         */
+        class MySniff {}
+        ';
+
+        (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
+        $doc = $this->parser->parse(str_replace('/', '\\', self::PHP_FILE_PATH), new StringSourceLocator($content, $this->astLocator));
+        self::assertEquals(
+            'Standard.Category.My',
+            $doc->getCode()
+        );
+    }
+
+    /** @test */
+    public function parse_WithMixedSlashesInPhpPath()
+    {
+        $content = '<?php
+        namespace Standard\Sniffs\Category;
+        /**
+         * Summary
+         *
+         * Description
+         *
+         * @since 1.0.0
+         */
+        class MySniff {}
+        ';
+
+        (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
+
+        $doc = $this->parser->parse(self::PHP_FILE_PATH_MIXED_SLASHES, new StringSourceLocator($content, $this->astLocator));
+        self::assertEquals(
+            'Standard.Category.My',
+            $doc->getCode()
         );
     }
 
