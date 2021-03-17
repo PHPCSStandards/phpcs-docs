@@ -78,8 +78,8 @@ class SniffParser
      */
     private function getSniffFileParts(string $filePath): array
     {
-        $part = '([^\/]*)';
-        preg_match("/$part\/Sniffs\/$part\/{$part}Sniff\.php/", $filePath, $matches);
+        $part = '([^/]*)';
+        preg_match("`$part/Sniffs/$part/{$part}Sniff\.php$`", $filePath, $matches);
         if ($matches === []) {
             throw NotASniffPath::fromPath($filePath);
         }
