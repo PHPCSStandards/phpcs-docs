@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Parser;
 
 use App\Parser\Exception\NotAViolationPath;
+use App\Util\Functions;
 use App\Value\Diff;
 use App\Value\Url;
 use App\Value\UrlList;
@@ -27,6 +28,7 @@ class ViolationParser
 
     private function getErrorCode(string $xmlFilePath): string
     {
+        $xmlFilePath = Functions::normalizeSlashes($xmlFilePath);
         $part = '([^\/]*)';
         preg_match("/$part\/Docs\/$part\/{$part}Standard\/$part\.xml/", $xmlFilePath, $matches);
         if ($matches === []) {
