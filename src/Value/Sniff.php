@@ -8,6 +8,9 @@ use Assert\Assert;
 class Sniff
 {
     private string $code;
+    private string $standardName;
+    private string $categoryName;
+    private string $sniffName;
     private string $docblock;
     /**
      * @var Property[]
@@ -42,6 +45,11 @@ class Sniff
         Assert::that($code)
             ->notBlank();
 
+        $sniffNameParts = explode('.', $code);
+        Assert::that($sniffNameParts)
+            ->isArray()
+            ->count(3);
+
         Assert::thatAll($properties)
             ->isInstanceOf(Property::class);
 
@@ -52,6 +60,9 @@ class Sniff
             ->isInstanceOf(Violation::class);
 
         $this->code = $code;
+        $this->standardName = $sniffNameParts[0];
+        $this->categoryName = $sniffNameParts[1];
+        $this->sniffName = $sniffNameParts[2];
         $this->docblock = $docblock;
         $this->properties = array_values($properties);
         $this->urls = $urls;
@@ -63,6 +74,21 @@ class Sniff
     public function getCode(): string
     {
         return $this->code;
+    }
+
+    public function getStandardName(): string
+    {
+        return $this->standardName;
+    }
+
+    public function getCategoryName(): string
+    {
+        return $this->categoryName;
+    }
+
+    public function getSniffName(): string
+    {
+        return $this->sniffName;
     }
 
     public function getDocblock(): string
