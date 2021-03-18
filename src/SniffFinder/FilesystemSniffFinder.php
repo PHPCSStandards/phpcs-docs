@@ -43,7 +43,7 @@ class FilesystemSniffFinder implements SniffFinder
         $dirs = new RecursiveDirectoryIterator($folder->getPath());
         $files = new RecursiveIteratorIterator($dirs);
         return new CallbackFilterIterator($files, function (SplFileInfo $fileInfo) {
-            return preg_match('/\.php$/', $fileInfo->getPathname()) && !preg_match('/\/Tests\//', $fileInfo->getPathname());
+            return preg_match('/\.php$/', $fileInfo->getPathname()) && !preg_match('`/Tests/`', $fileInfo->getPathname());
         });
     }
 
