@@ -72,7 +72,7 @@ class MarkdownGeneratorTest extends TestCase
         );
 
         self::assertEquals(
-            <<<MD
+            <<<'MD'
             # Standard.Category.My
             
             Description
@@ -83,8 +83,8 @@ class MarkdownGeneratorTest extends TestCase
             
             ## Public Properties
             
-            - \$a : string DescriptionA
-            - \$b : int DescriptionB
+            - `$a` : string DescriptionA
+            - `$b` : int DescriptionB
             
             ## See Also
             

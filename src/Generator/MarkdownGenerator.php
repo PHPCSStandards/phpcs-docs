@@ -127,7 +127,7 @@ class MarkdownGenerator implements Generator
     private function getPublicPropertyLines(array $properties): array
     {
         return array_map(function (Property $property) {
-            return "- \${$property->getName()} : {$property->getType()} {$property->getDescription()}";
+            return "- `\${$property->getName()}` : {$property->getType()} {$property->getDescription()}";
         }, $properties);
     }
 
