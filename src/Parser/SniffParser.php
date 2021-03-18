@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Parser;
 
 use App\Parser\Exception\NotASniffPath;
+use App\Util\Functions;
 use App\Value\Diff;
 use App\Value\Property;
 use App\Value\Sniff;
@@ -27,7 +28,7 @@ class SniffParser
 {
     public function parse(string $phpFilePath, SourceLocator $projectSourceLocator): Sniff
     {
-        $phpFilePath = $this->normalizeSlashes($phpFilePath);
+        $phpFilePath = Functions::normalizeSlashes($phpFilePath);
         $astLocator = (new BetterReflection())->astLocator();
         $reflector = new ClassReflector(
             new AggregateSourceLocator([
@@ -211,17 +212,5 @@ class SniffParser
         }, $links);
 
         return new UrlList(array_merge($urls, $xmlUrls));
-    }
-
-    /**
-     * Normalizes all slashes in a file path to forward slashes.
-     *
-     * @param string $path File path.
-     *
-     * @return string The file path with normalized slashes.
-     */
-    private function normalizeSlashes($path)
-    {
-        return str_replace('\\', '/', $path);
     }
 }
