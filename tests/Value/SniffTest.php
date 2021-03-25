@@ -16,6 +16,9 @@ use PHPUnit\Framework\TestCase;
 class SniffTest extends TestCase
 {
     const CODE = 'Standard.Category.Code';
+    const STANDARD = 'Standard';
+    const CATEGORY = 'Category';
+    const SNIFFNAME = 'Code';
     const DOCBLOCK = 'Docblock';
     const DESCRIPTION = 'Description';
     /**
@@ -125,6 +128,33 @@ class SniffTest extends TestCase
         self::assertEquals(
             self::CODE,
             $this->createSniff()->getCode()
+        );
+    }
+
+    /** @test */
+    public function getStandardName()
+    {
+        self::assertSame(
+            self::STANDARD,
+            $this->createSniff()->getStandardName()
+        );
+    }
+
+    /** @test */
+    public function getCategoryName()
+    {
+        self::assertSame(
+            self::CATEGORY,
+            $this->createSniff()->getCategoryName()
+        );
+    }
+
+    /** @test */
+    public function getSniffName()
+    {
+        self::assertSame(
+            self::SNIFFNAME,
+            $this->createSniff()->getSniffName()
         );
     }
 
