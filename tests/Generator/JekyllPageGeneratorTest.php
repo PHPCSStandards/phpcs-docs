@@ -9,7 +9,7 @@ use App\Value\UrlList;
 use PHPUnit\Framework\TestCase;
 
 /** @covers \App\Generator\JekyllPage */
-class JekyllPageTest extends TestCase
+class JekyllPageGeneratorTest extends TestCase
 {
     private JekyllPageGenerator $generator;
 

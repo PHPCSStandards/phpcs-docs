@@ -156,7 +156,7 @@ class MarkdownGenerator implements Generator
     private function getLinkLines(UrlList $urls): array
     {
         return array_map(function (Url $url) {
-            return "- [$url]($url)";
+            return "- [{$url->getName()}]({$url->getUrl()})";
         }, $urls->toArray());
     }
 

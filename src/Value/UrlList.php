@@ -19,7 +19,7 @@ class UrlList
     public function __construct(array $urls)
     {
         $strings = array_map(function (Url $url): string {
-            return (string)$url;
+            return $url->toString();
         }, $urls);
 
         $strings = array_values(array_unique($strings));

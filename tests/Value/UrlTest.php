@@ -10,8 +10,6 @@ use PHPUnit\Framework\TestCase;
 /** @covers \App\Value\Url */
 class UrlTest extends TestCase
 {
-    const URL = 'http://link.com';
-
     /** @test */
     public function constructor_WithInvalidUrlString_ThrowException()
     {
@@ -20,11 +18,32 @@ class UrlTest extends TestCase
     }
 
     /** @test */
-    public function getUrl()
+    public function getName_WithTextAfterUrl_ReturnTextName()
     {
+        $url = new Url('https://link.com Name with spaces');
         self::assertEquals(
-            self::URL,
-            (string)(new Url(self::URL))
+            'Name with spaces',
+            $url->getName()
+        );
+    }
+
+    /** @test */
+    public function getUrl_WithUrlOnly_ReturnsUrl()
+    {
+        $url = new Url('https://link.com');
+        self::assertEquals(
+            'https://link.com',
+            $url->getUrl()
+        );
+    }
+
+    /** @test */
+    public function getName_WithUrlOnly_ReturnsUrl()
+    {
+        $url = new Url('https://link.com');
+        self::assertEquals(
+            'https://link.com',
+            $url->getName()
         );
     }
 }
