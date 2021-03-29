@@ -295,6 +295,29 @@ class SniffParserTest extends TestCase
     }
 
     /** @test */
+    public function parse_WithInternalDocblock_ExcludeInternal()
+    {
+        $content = '<?php
+        namespace Standard\Sniffs\Category;
+        /**
+         * Summary
+         *
+         * Description
+         * {@internal Multiline
+         * internal comment}
+         */
+        class MySniff {}
+        ';
+
+        (new Filesystem())->dumpFile(self::PHP_FILE_PATH, $content);
+        $doc = $this->parser->parse(self::PHP_FILE_PATH, new StringSourceLocator($content, $this->astLocator));
+        self::assertEquals(
+            "Summary\n\nDescription",
+            $doc->getDocblock()
+        );
+    }
+
+    /** @test */
     public function parse_WithInvalidPhpPath_ThrowException()
     {
         $content = '<?php';

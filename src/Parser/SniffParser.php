@@ -142,8 +142,9 @@ class SniffParser
 
         $docBlockSummary = $docBlock->getSummary();
         $docBlockDescription = (string)$docBlock->getDescription();
+        $docBlockDescription = preg_replace('`[\n\r]*\{@internal[^}]+\}`', '', $docBlockDescription);
 
-        return $docBlockSummary . ($docBlockDescription !== '' ? "\n\n" . $docBlock->getDescription() : '');
+        return $docBlockSummary . ($docBlockDescription !== '' ? "\n\n" . $docBlockDescription : '');
     }
 
     /**
