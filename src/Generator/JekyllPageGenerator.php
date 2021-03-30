@@ -49,13 +49,6 @@ final class JekyllPageGenerator implements Generator
     private function getFrontMatter(Sniff $sniff): string
     {
         $sniffName = $sniff->getSniffName();
-        if ($sniffName === '') {
-            return <<<'MD'
-            ---
-            ---
-
-            MD;
-        }
 
         return <<<MD
         ---

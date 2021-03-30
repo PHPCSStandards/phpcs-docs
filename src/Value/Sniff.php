@@ -71,21 +71,25 @@ class Sniff
         $this->violations = $violations;
     }
 
+    /** @return non-empty-string */
     public function getCode(): string
     {
         return $this->code;
     }
 
+    /** @return non-empty-string */
     public function getStandardName(): string
     {
         return $this->standardName;
     }
 
+    /** @return non-empty-string */
     public function getCategoryName(): string
     {
         return $this->categoryName;
     }
 
+    /** @return non-empty-string */
     public function getSniffName(): string
     {
         return $this->sniffName;
