@@ -8,7 +8,7 @@ use App\Value\Violation;
 
 interface Generator
 {
-    public function createViolationDoc(Violation $doc): string;
+    public function createViolationDoc(Violation $violation): string;
 
     public function createSniffDoc(Sniff $sniff): string;
 }
