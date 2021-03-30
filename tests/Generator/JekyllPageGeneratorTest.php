@@ -12,7 +12,7 @@ use App\Value\UrlList;
 use App\Value\Violation;
 use PHPUnit\Framework\TestCase;
 
-/** @covers \App\Generator\JekyllPage */
+/** @covers \App\Generator\JekyllPageGenerator */
 class JekyllPageGeneratorTest extends TestCase
 {
     private JekyllPageGenerator $generator;

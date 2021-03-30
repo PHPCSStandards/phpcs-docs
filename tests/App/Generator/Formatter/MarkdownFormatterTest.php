@@ -17,19 +17,6 @@ final class MarkdownFormatterTest extends TestCase
 {
     private MarkdownFormatter $formatter;
 
-    /** @test */
-    public function formatDescription(): void
-    {
-        self::assertEquals(
-            <<<MD
-            Description
-            MD,
-            $this->formatter->formatDescription(
-                $this->createSniff()->withDescription('Description')
-            )
-        );
-    }
-
     private function createSniff(): Sniff
     {
         return new Sniff(
@@ -44,6 +31,30 @@ final class MarkdownFormatterTest extends TestCase
     }
 
     /** @test */
+    public function formatDescription(): void
+    {
+        self::assertEquals(
+            <<<MD
+            Description
+            MD,
+            $this->formatter->formatDescription(
+                $this->createSniff()->withDescription('Description')
+            )
+        );
+    }
+
+    /** @test */
+    public function formatDescription_WithBlankString_ReturnBlankString(): void
+    {
+        self::assertEquals(
+            '',
+            $this->formatter->formatDescription(
+                $this->createSniff()->withDescription('')
+            )
+        );
+    }
+
+    /** @test */
     public function formatDocblock(): void
     {
         self::assertEquals(
@@ -54,6 +65,17 @@ final class MarkdownFormatterTest extends TestCase
             MD,
             $this->formatter->formatDocblock(
                 $this->createSniff()->withDocblock('Docblock')
+            )
+        );
+    }
+
+    /** @test */
+    public function formatDocblock_WithBlankString_ReturnBlankString(): void
+    {
+        self::assertEquals(
+            '',
+            $this->formatter->formatDocblock(
+                $this->createSniff()->withDocblock('')
             )
         );
     }
@@ -85,6 +107,17 @@ final class MarkdownFormatterTest extends TestCase
     }
 
     /** @test */
+    public function formatComparisons_WithEmptyList_ReturnBlankString(): void
+    {
+        self::assertEquals(
+            '',
+            $this->formatter->formatComparisons(
+                $this->createSniff()->withDiffs([])->getDiffs()
+            )
+        );
+    }
+
+    /** @test */
     public function formatPublicProperties(): void
     {
         self::assertEquals(
@@ -104,6 +137,17 @@ final class MarkdownFormatterTest extends TestCase
     }
 
     /** @test */
+    public function formatPublicProperties_WithEmptyList_ReturnBlankString(): void
+    {
+        self::assertEquals(
+            '',
+            $this->formatter->formatPublicProperties(
+                $this->createSniff()->withProperties([])->getProperties()
+            )
+        );
+    }
+
+    /** @test */
     public function formatSeeAlso(): void
     {
         self::assertEquals(
@@ -118,6 +162,17 @@ final class MarkdownFormatterTest extends TestCase
                     new Url('http://link1.com'),
                     new Url('http://link2.com')
                 ]))->getUrls()
+            )
+        );
+    }
+
+    /** @test */
+    public function formatSeeAlso_WithEmptyList_ReturnBlankString(): void
+    {
+        self::assertEquals(
+            '',
+            $this->formatter->formatSeeAlso(
+                $this->createSniff()->withUrls(new UrlList([]))->getUrls()
             )
         );
     }
@@ -160,6 +215,17 @@ final class MarkdownFormatterTest extends TestCase
                         ])
                     )
                 ])->getViolations()
+            )
+        );
+    }
+
+    /** @test */
+    public function formatViolations_WithEmptyList_ReturnBlankString(): void
+    {
+        self::assertEquals(
+            '',
+            $this->formatter->formatViolations(
+                $this->createSniff()->withViolations([])->getViolations()
             )
         );
     }
