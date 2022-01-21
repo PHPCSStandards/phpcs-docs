@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Generator;
 
+use App\Generator\Formatter\MarkdownFormatter;
 use App\Generator\MarkdownGenerator;
 use App\Value\Diff;
 use App\Value\Property;
@@ -18,7 +19,7 @@ class MarkdownGeneratorTest extends TestCase
     private MarkdownGenerator $generator;
 
     /** @test */
-    public function fromSniff_WithMinimalData_WriteMinimalDetails()
+    public function createSniffDoc_WithMinimalData_WriteMinimalDetails()
     {
         $doc = new Sniff(
             'Standard.Category.My',
@@ -40,18 +41,16 @@ class MarkdownGeneratorTest extends TestCase
     }
 
     /** @test */
-    public function fromSniff_WithCompleteData_WriteAllDetails()
+    public function createSniffDoc_WithCompleteData_WriteAllDetails()
     {
         $doc = new Sniff(
             'Standard.Category.My',
             'DocBlock',
             [
                 new Property('a', 'string', 'DescriptionA'),
-                new Property('b', 'int', 'DescriptionB')
             ],
             new UrlList([
-                new Url('http://link1.com'),
-                new Url('http://link2.com')
+                new Url('http://link1.com')
             ]),
             'Description',
             [],
@@ -61,11 +60,9 @@ class MarkdownGeneratorTest extends TestCase
                     'Description',
                     [
                         new Diff('a();', 'b();'),
-                        new Diff('a();', 'b();')
                     ],
                     new UrlList([
-                        new Url('http://link1.com'),
-                        new Url('http://link2.com')
+                        new Url('http://link1.com')
                     ])
                 )
             ]
@@ -84,12 +81,10 @@ class MarkdownGeneratorTest extends TestCase
             ## Public Properties
             
             - `$a` : string DescriptionA
-            - `$b` : int DescriptionB
             
             ## See Also
             
             - [http://link1.com](http://link1.com)
-            - [http://link2.com](http://link2.com)
             
             ## Troubleshooting
             
@@ -105,6 +100,25 @@ class MarkdownGeneratorTest extends TestCase
             +b();
             ```
             
+            ## See Also
+            
+            - [http://link1.com](http://link1.com)
+            </details>
+            ```
+            MD,
+            $this->generator->createSniffDoc($doc)
+        );
+    }
+
+    /** @test */
+    public function createViolationDoc_WriteMinimalDetails()
+    {
+        self::assertEquals(
+            <<<'MD'
+            Description
+            
+            ## Comparisons
+            
             ```diff
             -a();
             +b();
@@ -113,18 +127,24 @@ class MarkdownGeneratorTest extends TestCase
             ## See Also
             
             - [http://link1.com](http://link1.com)
-            - [http://link2.com](http://link2.com)
-            
-            </details>
-            ```
-            
             MD,
-            $this->generator->createSniffDoc($doc)
+            $this->generator->createViolationDoc(
+                new Violation(
+                    'Standard.Category.My.ErrorCode',
+                    'Description',
+                    [
+                        new Diff('a();', 'b();'),
+                    ],
+                    new UrlList([
+                        new Url('http://link1.com')
+                    ])
+                )
+            )
         );
     }
 
     protected function setUp(): void
     {
-        $this->generator = new MarkdownGenerator();
+        $this->generator = new MarkdownGenerator(new MarkdownFormatter());
     }
 }

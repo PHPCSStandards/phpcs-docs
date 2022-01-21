@@ -71,21 +71,25 @@ class Sniff
         $this->violations = $violations;
     }
 
+    /** @return non-empty-string */
     public function getCode(): string
     {
         return $this->code;
     }
 
+    /** @return non-empty-string */
     public function getStandardName(): string
     {
         return $this->standardName;
     }
 
+    /** @return non-empty-string */
     public function getCategoryName(): string
     {
         return $this->categoryName;
     }
 
+    /** @return non-empty-string */
     public function getSniffName(): string
     {
         return $this->sniffName;
@@ -128,5 +132,105 @@ class Sniff
     public function getViolations(): array
     {
         return $this->violations;
+    }
+
+    public function withCode(string $newValue): self
+    {
+        return new self(
+            $newValue,
+            $this->docblock,
+            $this->properties,
+            $this->urls,
+            $this->description,
+            $this->diffs,
+            $this->violations
+        );
+    }
+
+    public function withDocblock(string $newValue): self
+    {
+        return new self(
+            $this->code,
+            $newValue,
+            $this->properties,
+            $this->urls,
+            $this->description,
+            $this->diffs,
+            $this->violations
+        );
+    }
+
+    /**
+     * @param Property[] $newValue
+     */
+    public function withProperties(array $newValue): self
+    {
+        return new self(
+            $this->code,
+            $this->docblock,
+            $newValue,
+            $this->urls,
+            $this->description,
+            $this->diffs,
+            $this->violations
+        );
+    }
+
+    public function withUrls(UrlList $newValue): self
+    {
+        return new self(
+            $this->code,
+            $this->docblock,
+            $this->properties,
+            $newValue,
+            $this->description,
+            $this->diffs,
+            $this->violations
+        );
+    }
+
+    public function withDescription(string $newValue): self
+    {
+        return new self(
+            $this->code,
+            $this->docblock,
+            $this->properties,
+            $this->urls,
+            $newValue,
+            $this->diffs,
+            $this->violations
+        );
+    }
+
+    /**
+     * @param Diff[] $newValue
+     */
+    public function withDiffs(array $newValue): self
+    {
+        return new self(
+            $this->code,
+            $this->docblock,
+            $this->properties,
+            $this->urls,
+            $this->description,
+            $newValue,
+            $this->violations
+        );
+    }
+
+    /**
+     * @param Violation[] $newValue
+     */
+    public function withViolations(array $newValue): self
+    {
+        return new self(
+            $this->code,
+            $this->docblock,
+            $this->properties,
+            $this->urls,
+            $this->description,
+            $this->diffs,
+            $newValue
+        );
     }
 }
