@@ -3,7 +3,8 @@ declare(strict_types=1);
 
 namespace App\Handler;
 
-use App\CodeRepository\CodeRepository;
+use App\CodeRepository\CodeRepositoryFactory;
+use App\Configuration\ConfigurationRepository;
 use App\Generator\Generator;
 use App\SniffFinder\SniffFinder;
 use App\Value\Folder;
@@ -11,15 +12,22 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class GenerateHandler
 {
-    private CodeRepository $codeRepository;
+    private CodeRepositoryFactory $codeRepositoryFactory;
     private Generator $generator;
     private SniffFinder $sniffFinder;
+    private ConfigurationRepository $configRepo;
 
-    public function __construct(CodeRepository $codeRepository, Generator $generator, SniffFinder $sniffFinder)
+    public function __construct(
+        CodeRepositoryFactory $codeRepositoryFactory,
+        Generator $generator,
+        SniffFinder $sniffFinder,
+        ConfigurationRepository $configRepo
+    )
     {
-        $this->codeRepository = $codeRepository;
+        $this->codeRepositoryFactory = $codeRepositoryFactory;
         $this->generator = $generator;
         $this->sniffFinder = $sniffFinder;
+        $this->configRepo = $configRepo;
     }
 
     /**
@@ -27,27 +35,32 @@ class GenerateHandler
      */
     public function handle(string $sniffPath = null): iterable
     {
-        $repoName = 'PHPCompatibility/PHPCompatibility';
-        $repoPath = $this->codeRepository->downloadCode($repoName);
+        $config = $this->configRepo->getConfig();
         $filesystem = new Filesystem();
 
-        $standardPath = new Folder($repoPath . 'PHPCompatibility/');
-        yield "Searching for sniffs...";
+        foreach ($config->getSources() as $source) {
+            $codeRepository = $this->codeRepositoryFactory->fromType($source->getType());
+            $sourceFolder = $codeRepository->getFolder($source);
+            foreach ($source->getStandards() as $standard) {
+                $standardFolder = new Folder($sourceFolder . $standard->getPath() . '/');
+                yield "Searching for sniffs in {$standardFolder}...";
 
-        if ($sniffPath !== null) {
-            $sniffs = [$this->sniffFinder->getSniff($standardPath, $sniffPath)];
-        } else {
-            $sniffs = $this->sniffFinder->getSniffs($standardPath);
-        }
+                if ($sniffPath !== null) {
+                    $sniffs = [$this->sniffFinder->getSniff($standardFolder, $sourceFolder, $sniffPath)];
+                } else {
+                    $sniffs = $this->sniffFinder->getSniffs($standardFolder, $sourceFolder);
+                }
 
-        foreach ($sniffs as $sniff) {
-            $markdownPath = $this->sniffCodeToMarkdownPath($sniff->getCode());
-            $filesystem->dumpFile(
-            // TODO: perhaps we can move this logic to the the sniff class
-                $markdownPath,
-                $this->generator->createSniffDoc($sniff)
-            );
-            yield "Created file: {$markdownPath}";
+                foreach ($sniffs as $sniff) {
+                    $markdownPath = $this->sniffCodeToMarkdownPath($sniff->getCode());
+                    $filesystem->dumpFile(
+                    // TODO: perhaps we can move this logic to the the sniff class
+                        $markdownPath,
+                        $this->generator->createSniffDoc($sniff)
+                    );
+                    yield "Created file: {$markdownPath}";
+                }
+            }
         }
     }
 

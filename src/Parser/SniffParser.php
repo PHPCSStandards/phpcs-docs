@@ -209,7 +209,8 @@ class SniffParser
             ->getTagsByName('link');
 
         $urls = array_map(function (string $url) {
-            return new Url($url);
+            preg_match('/(http[^ ]+)/', $url, $matches);
+            return new Url($matches[0]);
         }, $links);
 
         return new UrlList(array_merge($urls, $xmlUrls));

@@ -3,20 +3,19 @@ declare(strict_types=1);
 
 namespace App\CodeRepository;
 
+use App\Configuration\Value\Source;
 use App\Value\Folder;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-class GithubCodeRepository implements CodeRepository
+class GitCodeRepository implements CodeRepository
 {
-    public function downloadCode(string $repoName): Folder
+    public function getFolder(Source $source): Folder
     {
-        $repoPath = new Folder(self::CODE_DOWNLOAD_PATH . $repoName . '/');
+        $this->runProcess($this->getCloneOrPullProcess($source->getLocalFolder(), $source->getPath()));
+        $this->runProcess($this->getComposerInstallProcess($source->getLocalFolder()));
 
-        $this->runProcess($this->getCloneOrPullProcess($repoPath, $repoName));
-        $this->runProcess($this->getComposerInstallProcess($repoPath));
-
-        return $repoPath;
+        return $source->getLocalFolder();
     }
 
     private function runProcess(Process $process): void
@@ -28,21 +27,21 @@ class GithubCodeRepository implements CodeRepository
         }
     }
 
-    private function getCloneOrPullProcess(Folder $repoPath, string $repoName): Process
+    private function getCloneOrPullProcess(Folder $localPath, string $sourcePath): Process
     {
-        if (!is_dir((string)$repoPath)) {
+        if (!is_dir((string)$localPath)) {
             return new Process([
                 'git',
                 'clone',
-                'git@github.com:' . $repoName,
-                $repoPath
+                $sourcePath,
+                (string)$localPath
             ]);
         }
 
         return new Process([
             'git',
             '-C',
-            $repoPath,
+            (string)$localPath,
             'pull'
         ]);
     }

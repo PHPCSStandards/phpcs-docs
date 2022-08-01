@@ -5,7 +5,7 @@ namespace App\Value;
 
 use Assert\Assert;
 
-class Violation
+final class Violation
 {
     private string $code;
     private string $description;

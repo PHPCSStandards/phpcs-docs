@@ -18,21 +18,18 @@ use SplFileInfo;
 
 class FilesystemSniffFinder implements SniffFinder
 {
-    public function getSniff(Folder $folder, string $sniffPath): Sniff
+    public function getSniff(Folder $standardFolder, Folder $sourceFolder, string $sniffPath): Sniff
     {
         $parser = new SniffParser();
-        $projectSourceLocator = $this->createProjectSourceLocator($folder);
+        $projectSourceLocator = $this->createProjectSourceLocator($sourceFolder);
         return $parser->parse($sniffPath, $projectSourceLocator);
     }
 
-    public function getSniffs(Folder $folder): iterable
+    private function createProjectSourceLocator(Folder $folder): SourceLocator
     {
-        $parser = new SniffParser();
-        $globSniffs = new GlobIterator($folder->getPath() . 'Sniffs/*/*Sniff.php');
-        $projectSourceLocator = $this->createProjectSourceLocator($folder);
-        foreach ($globSniffs as $fileInfo) {
-            yield $parser->parse($fileInfo->getPathname(), $projectSourceLocator);
-        }
+        $astLocator = (new BetterReflection())->astLocator();
+        $fileInfoIterator = $this->recursiveSearch($folder);
+        return new FileIteratorSourceLocator($fileInfoIterator, $astLocator);
     }
 
     /**
@@ -47,10 +44,13 @@ class FilesystemSniffFinder implements SniffFinder
         });
     }
 
-    private function createProjectSourceLocator(Folder $folder): SourceLocator
+    public function getSniffs(Folder $standardFolder, Folder $sourceFolder): iterable
     {
-        $astLocator = (new BetterReflection())->astLocator();
-        $fileInfoIterator = $this->recursiveSearch($folder);
-        return new FileIteratorSourceLocator($fileInfoIterator, $astLocator);
+        $parser = new SniffParser();
+        $globSniffs = new GlobIterator($standardFolder->getPath() . 'Sniffs/*/*Sniff.php');
+        $projectSourceLocator = $this->createProjectSourceLocator($sourceFolder);
+        foreach ($globSniffs as $fileInfo) {
+            yield $parser->parse($fileInfo->getPathname(), $projectSourceLocator);
+        }
     }
 }

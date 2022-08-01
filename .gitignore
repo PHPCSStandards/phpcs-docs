@@ -1,4 +1,5 @@
 vendor
 var
+!var/tests/repo
 !var/**/.gitkeep
 .phpunit.result.cache

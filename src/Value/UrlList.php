@@ -6,7 +6,7 @@ namespace App\Value;
 /**
  * Collection of unique URLs.
  */
-class UrlList
+final class UrlList
 {
     /**
      * @var Url[]

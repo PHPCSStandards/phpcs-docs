@@ -5,19 +5,19 @@ namespace App\Value;
 
 use Assert\Assert;
 
-class Url
+final class Url
 {
     private string $url;
 
     public function __construct(string $url)
     {
         Assert::that($url)
-            ->url();
+            ->url('Not a valid URL: ' . $url);
 
         $this->url = $url;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getUrl();
     }

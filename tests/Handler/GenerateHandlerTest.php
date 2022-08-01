@@ -4,6 +4,11 @@ declare(strict_types=1);
 namespace App\Tests\Handler;
 
 use App\CodeRepository\CodeRepository;
+use App\CodeRepository\CodeRepositoryFactory;
+use App\Configuration\ConfigurationRepository;
+use App\Configuration\Value\Configuration;
+use App\Configuration\Value\Source;
+use App\Configuration\Value\Standard;
 use App\Generator\Generator;
 use App\Handler\GenerateHandler;
 use App\SniffFinder\SniffFinder;
@@ -23,9 +28,9 @@ class GenerateHandlerTest extends TestCase
      */
     private GenerateHandler $handler;
     /**
-     * @var CodeRepository|MockObject
+     * @var CodeRepositoryFactory|MockObject
      */
-    private $codeRepository;
+    private $codeRepositoryFactory;
     /**
      * @var Generator|MockObject
      */
@@ -34,11 +39,18 @@ class GenerateHandlerTest extends TestCase
      * @var SniffFinder|MockObject
      */
     private $sniffFinder;
+    /**
+     * @var ConfigurationRepository|MockObject
+     */
+    private $configRepo;
 
     /** @test */
     public function handle_WithoutArguments_CreatesFile()
     {
-        $this->codeRepository->method('downloadCode')->willReturn(new Folder('var/tests/'));
+        $codeRepository = $this->createMock(CodeRepository::class);
+        $codeRepository->method('getFolder')->willReturn(new Folder('var/tests/'));
+        $this->codeRepositoryFactory->method('fromType')->willReturn($codeRepository);
+
         $sniffs = $this->createSniffs(['First', 'Second']);
         $this->sniffFinder->method('getSniffs')->willReturn($sniffs);
         $this->generator->method('createSniffDoc')->withConsecutive([$sniffs[0]], [$sniffs[1]]);
@@ -48,7 +60,7 @@ class GenerateHandlerTest extends TestCase
 
         self::assertEquals(
             [
-                'Searching for sniffs...',
+                'Searching for sniffs in var/tests/Standard/...',
                 'Created file: var/markdown/Standard/Category/First.md',
                 'Created file: var/markdown/Standard/Category/Second.md'
             ],
@@ -89,7 +101,9 @@ class GenerateHandlerTest extends TestCase
     /** @test */
     public function handle_WithSniffPath_CreatesSingleFile()
     {
-        $this->codeRepository->method('downloadCode')->willReturn(new Folder('var/tests/'));
+        $codeRepository = $this->createMock(CodeRepository::class);
+        $codeRepository->method('getFolder')->willReturn(new Folder('var/tests/'));
+        $this->codeRepositoryFactory->method('fromType')->willReturn($codeRepository);
         $this->sniffFinder->method('getSniff')->willReturn($this->createSniff('First'));
 
         /** @var \Generator $messages */
@@ -97,7 +111,7 @@ class GenerateHandlerTest extends TestCase
 
         self::assertEquals(
             [
-                'Searching for sniffs...',
+                'Searching for sniffs in var/tests/Standard/...',
                 'Created file: var/markdown/Standard/Category/First.md',
             ],
             iterator_to_array($messages)
@@ -108,14 +122,25 @@ class GenerateHandlerTest extends TestCase
     {
         (new Filesystem())->remove('var/markdown/Standard');
 
-        $this->codeRepository = $this->createMock(CodeRepository::class);
+        $this->codeRepositoryFactory = $this->createMock(CodeRepositoryFactory::class);
         $this->generator = $this->createMock(Generator::class);
         $this->sniffFinder = $this->createMock(SniffFinder::class);
+        $this->configRepo = $this->createMock(ConfigurationRepository::class);
+
+        $this->configRepo->method('getConfig')->willReturn(new Configuration(
+            'markdown',
+            [
+                new Source('../Standard', [
+                    new Standard('Standard')
+                ])
+            ]
+        ));
 
         $this->handler = new GenerateHandler(
-            $this->codeRepository,
+            $this->codeRepositoryFactory,
             $this->generator,
-            $this->sniffFinder
+            $this->sniffFinder,
+            $this->configRepo
         );
     }
 }
